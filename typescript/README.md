@@ -11,7 +11,6 @@ This repository offers practical examples for instrumenting TypeScript/Node.js a
   - [Error: `Module has no exported member 'logs'`](#error-module-has-no-exported-member-logs)
   - [Error: `Property 'SpanStatusCode' does not exist on type 'TraceAPI'`](#error-property-spanstatuscode-does-not-exist-on-type-traceapi)
   - [Error: `Property 'active' does not exist on type 'TraceAPI'`](#error-property-active-does-not-exist-on-type-traceapi)
-  - [Error: `Type 'PeriodicExportingMetricReader' is not assignable`](#error-type-periodicexportingmetricreader-is-not-assignable)
 - [📋 Recommended Code Patterns](#-recommended-code-patterns)
 - [⚙️ Automatic Instrumentation](#️-automatic-instrumentation)
 - [📈 Exporting Telemetry Data](#-exporting-telemetry-data)
@@ -81,8 +80,6 @@ import { trace, context } from '@opentelemetry/api';
 trace.setSpan(context.active(), span);
 ```
 
-**Type Compatibility**: If you encounter type mismatches with metric readers or other SDK components, you may need to use type assertions (`as any`) as a temporary workaround while package versions align.
-
 ## 🔧 Common Compilation Error Fixes
 
 ### Error: `Module has no exported member 'logs'`
@@ -114,14 +111,6 @@ trace.setSpan(trace.active(), span);
 // ✅ Correct
 import { context } from '@opentelemetry/api';
 trace.setSpan(context.active(), span);
-```
-
-### Error: `Type 'PeriodicExportingMetricReader' is not assignable`
-```typescript
-// ✅ Add type assertion
-metricReader: new PeriodicExportingMetricReader({
-  exporter: new OTLPMetricExporter({ /* config */ }),
-}) as any,
 ```
 
 The setup is framework-agnostic and works with any Node.js HTTP framework.
