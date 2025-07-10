@@ -6,6 +6,12 @@ This repository offers practical examples for instrumenting TypeScript/Node.js a
 - [🔧 Configuration Overview](#-configuration-overview)
 - [🧪 Generic OpenTelemetry Setup](#-generic-opentelemetry-setup)
   - [Key Components](#key-components)
+  - [Common API Patterns](#common-api-patterns)
+- [🔧 Common Compilation Error Fixes](#-common-compilation-error-fixes)
+  - [Error: `Module has no exported member 'logs'`](#error-module-has-no-exported-member-logs)
+  - [Error: `Property 'SpanStatusCode' does not exist on type 'TraceAPI'`](#error-property-spanstatuscode-does-not-exist-on-type-traceapi)
+  - [Error: `Property 'active' does not exist on type 'TraceAPI'`](#error-property-active-does-not-exist-on-type-traceapi)
+- [📋 Recommended Code Patterns](#-recommended-code-patterns)
 - [⚙️ Automatic Instrumentation](#️-automatic-instrumentation)
 - [📈 Exporting Telemetry Data](#-exporting-telemetry-data)
 - [🧪 Example Usage](#-example-usage)
@@ -31,7 +37,15 @@ npm install \
   @grpc/grpc-js
 ```
 
-**Note**: Use recent versions of OpenTelemetry packages (v1.9.0+ for API, v0.52.0+ for SDK packages). Some package combinations may require specific version compatibility - check the [OpenTelemetry JavaScript compatibility matrix](https://github.com/open-telemetry/opentelemetry-js#supported-runtimes) if you encounter version conflicts.
+**Version Compatibility Notes**:
+- Use recent versions of OpenTelemetry packages (v1.9.0+ for API, v0.52.0+ for SDK packages).
+- Some package combinations may require specific version compatibility - check the [OpenTelemetry JavaScript compatibility matrix](https://github.com/open-telemetry/opentelemetry-js#supported-runtimes) if you encounter version conflicts.
+
+**Critical Import Rules**:
+- ❌ **DO NOT** import `logs` from `@opentelemetry/api` (not available in versions 1.7.0 and earlier)
+- ✅ **DO** use `loggerProvider.getLogger()` directly from your setup module
+- ❌ **DO NOT** use `trace.SpanStatusCode` or `trace.active()`
+- ✅ **DO** import `SpanStatusCode` and `context` directly from `@opentelemetry/api`
 
 For development, you'll also need:
 
@@ -50,12 +64,92 @@ The example utilizes the OTLP gRPC exporter by default, with the endpoint config
 The [otel_setup.ts](otel_setup.ts) file demonstrates how to set up OpenTelemetry in any Node.js application. It uses the NodeSDK with automatic instrumentation, which works with Express, Fastify, Koa, and other Node.js frameworks without framework-specific configuration.
 
 ### Key Components
+
 - **Tracing**: Configured using NodeSDK and OTLPTraceExporter.
 - **Metrics**: Set up with PeriodicExportingMetricReader and OTLPMetricExporter.
-- **Logging**: Implemented via LoggerProvider and OTLPLogExporter.
+- **Logging**: Implemented via LoggerProvider and OTLPLogExporter. *Note: Import logger instances from your setup module, not from `@opentelemetry/api`.*
 - **Instrumentation**: Applied automatically using getNodeAutoInstrumentations().
+- **Spans**: Import `SpanStatusCode` directly from `@opentelemetry/api` rather than accessing it as a property of the trace API.
+
+### Common API Patterns
+
+**Context Management**: Use `context.active()` to get the active context, not `trace.active()`. The active context is managed by the context API:
+```typescript
+import { trace, context } from '@opentelemetry/api';
+// Correct: context.active()
+trace.setSpan(context.active(), span);
+```
+
+## 🔧 Common Compilation Error Fixes
+
+### Error: `Module has no exported member 'logs'`
+```typescript
+// ❌ Wrong
+import { logs } from '@opentelemetry/api';
+const logger = logs.getLogger('service');
+
+// ✅ Correct
+import { loggerProvider } from './otel_setup';
+const logger = loggerProvider.getLogger('service');
+```
+
+### Error: `Property 'SpanStatusCode' does not exist on type 'TraceAPI'`
+```typescript
+// ❌ Wrong
+span.setStatus({ code: trace.SpanStatusCode.ERROR });
+
+// ✅ Correct
+import { SpanStatusCode } from '@opentelemetry/api';
+span.setStatus({ code: SpanStatusCode.ERROR });
+```
+
+### Error: `Property 'active' does not exist on type 'TraceAPI'`
+```typescript
+// ❌ Wrong
+trace.setSpan(trace.active(), span);
+
+// ✅ Correct
+import { context } from '@opentelemetry/api';
+trace.setSpan(context.active(), span);
+```
 
 The setup is framework-agnostic and works with any Node.js HTTP framework.
+
+## 📋 Recommended Code Patterns
+
+When implementing OpenTelemetry instrumentation, follow these patterns to ensure TypeScript compatibility:
+
+**Required Imports Pattern**:
+```typescript
+// Always import these together for full functionality
+import { trace, context, SpanStatusCode } from '@opentelemetry/api';
+import { logger, tracer, meter } from './otel_setup'; // from setup module
+```
+
+**Span Management Pattern**:
+```typescript
+const span = tracer.startSpan('operation_name');
+try {
+  // Set span in context
+  trace.setSpan(context.active(), span);
+
+  // Set status on errors
+  span.setStatus({ code: SpanStatusCode.ERROR, message: 'error details' });
+} finally {
+  span.end();
+}
+```
+
+**Logger Usage Pattern**:
+```typescript
+// Use logger from setup module, not from @opentelemetry/api
+logger.emit({
+  severityNumber: 9, // INFO=9, WARN=13, ERROR=17
+  severityText: 'INFO',
+  body: 'log message',
+  attributes: { key: 'value' }
+});
+```
 
 ## ⚙️ Automatic Instrumentation
 

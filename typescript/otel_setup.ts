@@ -34,7 +34,7 @@ export const sdk = new NodeSDK({
       url: otlpEndpoint,
       credentials: credentials.createInsecure(),
     }),
-  }),
+  }) as any,
   instrumentations: [getNodeAutoInstrumentations()],
 });
 
