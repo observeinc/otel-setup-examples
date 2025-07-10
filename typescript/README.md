@@ -17,6 +17,12 @@ This repository offers practical examples for instrumenting TypeScript/Node.js a
 - [🧪 Example Usage](#-example-usage)
   - [HTTP Server Application](#http-server-application)
 - [📚 References](#-references)
+>>>>>>> More updates
+- [⚙️ Automatic Instrumentation](#️-automatic-instrumentation)
+- [📈 Exporting Telemetry Data](#-exporting-telemetry-data)
+- [🧪 Example Usage](#-example-usage)
+  - [HTTP Server Application](#http-server-application)
+- [📚 References](#-references)
 
 
 ## 📦 Dependencies
