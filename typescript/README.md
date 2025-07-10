@@ -31,7 +31,10 @@ npm install \
   @grpc/grpc-js
 ```
 
-**Note**: Use recent versions of OpenTelemetry packages (v1.9.0+ for API, v0.52.0+ for SDK packages). Some package combinations may require specific version compatibility - check the [OpenTelemetry JavaScript compatibility matrix](https://github.com/open-telemetry/opentelemetry-js#supported-runtimes) if you encounter version conflicts.
+**Notes**: 
+- Use recent versions of OpenTelemetry packages (v1.9.0+ for API, v0.52.0+ for SDK packages). 
+- Some package combinations may require specific version compatibility - check the [OpenTelemetry JavaScript compatibility matrix](https://github.com/open-telemetry/opentelemetry-js#supported-runtimes) if you encounter version conflicts.
+- The `logs` export is not available in `@opentelemetry/api` versions 1.7.0 and earlier. Use `loggerProvider.getLogger()` directly instead of importing `logs` from the API package.
 
 For development, you'll also need:
 
@@ -50,10 +53,12 @@ The example utilizes the OTLP gRPC exporter by default, with the endpoint config
 The [otel_setup.ts](otel_setup.ts) file demonstrates how to set up OpenTelemetry in any Node.js application. It uses the NodeSDK with automatic instrumentation, which works with Express, Fastify, Koa, and other Node.js frameworks without framework-specific configuration.
 
 ### Key Components
+
 - **Tracing**: Configured using NodeSDK and OTLPTraceExporter.
 - **Metrics**: Set up with PeriodicExportingMetricReader and OTLPMetricExporter.
-- **Logging**: Implemented via LoggerProvider and OTLPLogExporter.
+- **Logging**: Implemented via LoggerProvider and OTLPLogExporter. *Note: Import logger instances from your setup module, not from `@opentelemetry/api`.*
 - **Instrumentation**: Applied automatically using getNodeAutoInstrumentations().
+- **Spans**: Import `SpanStatusCode` directly from `@opentelemetry/api` rather than accessing it as a property of the trace API.
 
 The setup is framework-agnostic and works with any Node.js HTTP framework.
 
