@@ -6,6 +6,7 @@ This repository offers practical examples for instrumenting TypeScript/Node.js a
 - [🔧 Configuration Overview](#-configuration-overview)
 - [🧪 Generic OpenTelemetry Setup](#-generic-opentelemetry-setup)
   - [Key Components](#key-components)
+  - [Common API Patterns](#common-api-patterns)
 - [⚙️ Automatic Instrumentation](#️-automatic-instrumentation)
 - [📈 Exporting Telemetry Data](#-exporting-telemetry-data)
 - [🧪 Example Usage](#-example-usage)
@@ -59,6 +60,17 @@ The [otel_setup.ts](otel_setup.ts) file demonstrates how to set up OpenTelemetry
 - **Logging**: Implemented via LoggerProvider and OTLPLogExporter. *Note: Import logger instances from your setup module, not from `@opentelemetry/api`.*
 - **Instrumentation**: Applied automatically using getNodeAutoInstrumentations().
 - **Spans**: Import `SpanStatusCode` directly from `@opentelemetry/api` rather than accessing it as a property of the trace API.
+
+### Common API Patterns
+
+**Context Management**: Use `context.active()` to get the active context, not `trace.active()`. The active context is managed by the context API:
+```typescript
+import { trace, context } from '@opentelemetry/api';
+// Correct: context.active()
+trace.setSpan(context.active(), span);
+```
+
+**Type Compatibility**: If you encounter type mismatches with metric readers or other SDK components, you may need to use type assertions (`as any`) as a temporary workaround while package versions align.
 
 The setup is framework-agnostic and works with any Node.js HTTP framework.
 
