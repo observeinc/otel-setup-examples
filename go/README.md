@@ -44,10 +44,19 @@ go get \
   go.opentelemetry.io/contrib/bridges/otelslog
 ```
 
-For HTTP instrumentation, add:
+For (framework-specific) HTTP instrumentation, add:
 
 ```bash
+# For net/http
 go get go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp
+
+# For Gin
+go get github.com/gin-gonic/gin \
+  go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin
+
+# For Echo
+go get github.com/labstack/echo/v4 \
+  go.opentelemetry.io/contrib/instrumentation/github.com/labstack/echo/otelecho
 ```
 
 **Version Compatibility Notes**:
@@ -172,11 +181,29 @@ func main() {
 ```
 
 **HTTP Handler Pattern**:
+
+*** For net/http ***
+
 ```go
 // Wrap handlers for automatic instrumentation
 handler := otelhttp.NewHandler(http.HandlerFunc(yourHandler), "HandlerName")
 mux.Handle("/path", handler)
 ```
+
+*** For Echo ***
+```go
+e := echo.New()
+e.Use(otelecho.Middleware("echo-service"))
+e.GET("/", yourHandler)
+```
+
+*** For Gin ***
+```go
+r := gin.Default()
+r.Use(otelgin.Middleware("gin-service"))
+e.GET("/", yourHandler)
+```
+
 
 **Manual Span Pattern**:
 ```go
