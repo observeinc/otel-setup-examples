@@ -11,10 +11,16 @@ This repository offers practical examples for instrumenting Go applications with
   - [Structured Logging with slog](#structured-logging-with-slog)
   - [HTTP Instrumentation](#http-instrumentation)
   - [Resource Configuration](#resource-configuration)
+- [🔧 Common Build Issues](#-common-build-issues)
+  - [Unused Import Errors](#unused-import-errors)
+  - [Version Conflicts](#version-conflicts)
+  - [Module Resolution Issues](#module-resolution-issues)
 - [📋 Recommended Code Patterns](#-recommended-code-patterns)
 - [⚙️ Automatic vs Manual Instrumentation](#️-automatic-vs-manual-instrumentation)
+  - [Setup Steps](#setup-steps)
 - [📈 Exporting Telemetry Data](#-exporting-telemetry-data)
 - [🧪 Example Usage](#-example-usage)
+  - [Setup Steps](#setup-steps-1)
   - [HTTP Server Application](#http-server-application)
 - [📚 References](#-references)
 
@@ -46,7 +52,12 @@ go get go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp
 
 **Version Compatibility Notes**:
 - Use Go 1.21+ for best OpenTelemetry support
-- OpenTelemetry Go packages follow semantic versioning - use recent stable versions (v1.20.0+ for core packages)
+- OpenTelemetry Go packages use different versioning schemes:
+  - Core packages (otel, sdk) use v1.x.x versioning
+  - Log exporters use v0.x.x versioning (e.g., otlploggrpc v0.10.0)
+  - Contrib packages may have different version cycles
+- Check the [OpenTelemetry Go Compatibility Matrix](https://github.com/open-telemetry/opentelemetry-go#compatibility) for tested version combinations
+- Refer to [OpenTelemetry Go Releases](https://github.com/open-telemetry/opentelemetry-go/releases) for the latest stable versions
 - The `otelslog` bridge requires Go 1.21+ for structured logging support
 
 ## 🔧 Configuration Overview
@@ -106,6 +117,44 @@ Proper resource configuration is crucial for service identification:
 - Use semantic conventions from `go.opentelemetry.io/otel/semconv`
 - Include service name, version, and environment information
 - Resources are shared across traces, metrics, and logs
+
+## 🔧 Common Build Issues
+
+### Unused Import Errors
+
+Go strictly enforces that all imports must be used. Remove any unused imports:
+
+```go
+// ❌ Wrong - unused import
+import (
+    "context"  // unused in this file
+    "fmt"
+)
+
+// ✅ Correct - only import what you use
+import (
+    "fmt"
+)
+```
+
+### Version Conflicts
+
+If you encounter module version errors like "unknown revision" or "invalid version":
+
+1. **Use tested version combinations** from the Dependencies section above
+2. **Verify compatibility online**:
+   - Check [OpenTelemetry Go Compatibility Matrix](https://github.com/open-telemetry/opentelemetry-go#compatibility) for supported version combinations
+   - Browse [OpenTelemetry Go Releases](https://github.com/open-telemetry/opentelemetry-go/releases) to find the latest stable versions
+   - Review [OpenTelemetry Go Contrib Releases](https://github.com/open-telemetry/opentelemetry-go-contrib/releases) for contrib package versions
+3. **Cross-reference versions** between core packages and exporters to ensure compatibility
+
+### Module Resolution Issues
+
+Ensure your `go.mod` includes all required dependencies:
+
+1. **Reference working examples**: Use the complete dependency list from the Dependencies section above
+2. **Verify module paths**: Check [pkg.go.dev](https://pkg.go.dev) to confirm correct module import paths
+3. **Validate versions exist**: Browse the GitHub releases pages linked above to confirm version numbers are valid
 
 ## 📋 Recommended Code Patterns
 
