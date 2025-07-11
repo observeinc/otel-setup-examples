@@ -9,17 +9,18 @@ import {
   BatchLogRecordProcessor,
 } from "@opentelemetry/sdk-logs";
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
-import { Resource } from "@opentelemetry/resources";
-import { SemanticResourceAttributes } from "@opentelemetry/semantic-conventions";
+import { resourceFromAttributes } from "@opentelemetry/resources";
+import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 import { trace, metrics } from "@opentelemetry/api";
 
 // Configuration
 const serviceName = "ts-http-hello";
-const otlpEndpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT || "http://localhost:4317";
+const otlpEndpoint =
+  process.env.OTEL_EXPORTER_OTLP_ENDPOINT || "http://localhost:4317";
 
 // Create resource
-const resource = new Resource({
-  [SemanticResourceAttributes.SERVICE_NAME]: serviceName,
+const resource = resourceFromAttributes({
+  [ATTR_SERVICE_NAME]: serviceName,
 });
 
 // Initialize OpenTelemetry SDK
@@ -34,19 +35,20 @@ export const sdk = new NodeSDK({
       url: otlpEndpoint,
       credentials: credentials.createInsecure(),
     }),
-  }) as any,
+  }),
   instrumentations: [getNodeAutoInstrumentations()],
+});
+
+const logExporter = new OTLPLogExporter({
+  url: otlpEndpoint,
+  credentials: credentials.createInsecure(),
 });
 
 // Initialize Logger Provider
 export const loggerProvider = new LoggerProvider({
   resource: resource,
+  processors: [new BatchLogRecordProcessor(logExporter)],
 });
-const logExporter = new OTLPLogExporter({
-  url: otlpEndpoint,
-  credentials: credentials.createInsecure(),
-});
-loggerProvider.addLogRecordProcessor(new BatchLogRecordProcessor(logExporter));
 
 // Get tracer, meter, and logger
 export const tracer = trace.getTracer(serviceName);
