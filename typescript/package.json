@@ -20,5 +20,8 @@
     "@opentelemetry/sdk-metrics": "^2.0.1",
     "@opentelemetry/sdk-node": "^0.203.0",
     "@opentelemetry/semantic-conventions": "^1.36.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
   }
 }
