@@ -1,0 +1,27 @@
+{
+  "name": "otel-setup-examples",
+  "version": "0.1.0",
+  "description": "Example OTEL in TypeScript",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "SEE LICENSE IN license.md",
+  "dependencies": {
+    "@grpc/grpc-js": "^1.13.4",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/auto-instrumentations-node": "^0.62.0",
+    "@opentelemetry/exporter-logs-otlp-grpc": "^0.203.0",
+    "@opentelemetry/exporter-metrics-otlp-grpc": "^0.203.0",
+    "@opentelemetry/exporter-trace-otlp-grpc": "^0.203.0",
+    "@opentelemetry/resources": "^2.0.1",
+    "@opentelemetry/sdk-logs": "^0.203.0",
+    "@opentelemetry/sdk-metrics": "^2.0.1",
+    "@opentelemetry/sdk-node": "^0.203.0",
+    "@opentelemetry/semantic-conventions": "^1.36.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}
