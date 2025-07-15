@@ -65,8 +65,7 @@ go get github.com/labstack/echo/v4 \
   - Core packages (otel, sdk) use v1.x.x versioning
   - Log exporters use v0.x.x versioning (e.g., otlploggrpc v0.10.0)
   - Contrib packages may have different version cycles
-- **For working, tested versions**: Check the project's [`go.mod`](go.mod) file which contains a set of compatible versions that have been verified to work together
-- Check the [OpenTelemetry Go Compatibility Matrix](https://github.com/open-telemetry/opentelemetry-go#compatibility) for supported version combinations
+- Check the [OpenTelemetry Go Compatibility Matrix](https://github.com/open-telemetry/opentelemetry-go#compatibility) for tested version combinations
 - Refer to [OpenTelemetry Go Releases](https://github.com/open-telemetry/opentelemetry-go/releases) for the latest stable versions
 - The `otelslog` bridge requires Go 1.21+ for structured logging support
 

@@ -40,16 +40,13 @@ pip install \
   opentelemetry-instrumentation
 ```
 
-**Version Compatibility Notes**:
-- **For working, tested versions**: Check the project's [`requirements.txt`](requirements.txt) file which contains a set of compatible versions that have been verified to work together
-
 ## 🔧 Configuration Overview
 
 The examples utilize the OTLP gRPC exporter by default, with the endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. If not set, it defaults to `http://localhost:4317`.
 
 ## 🧪 Flask Application Example
 
-The [flask/otel.py](flask/otel.py) file demonstrates how to set up OpenTelemetry in a Flask application. It includes configurations for tracing, metrics, and logging, along with instrumentation for Flask and logging modules.
+The [flask_otel_setup.py](flask_otel_setup.py) file demonstrates how to set up OpenTelemetry in a Flask application. It includes configurations for tracing, metrics, and logging, along with instrumentation for Flask and logging modules.
 
 ### Key Components
 - **Tracing**: Configured using TracerProvider and OTLPSpanExporter.
@@ -61,7 +58,7 @@ The setup functions are modular, allowing for reuse and clarity.
 
 ## ⚡ FastAPI Application Example
 
-The [fastapi/otel.py](fastapi/otel.py) file illustrates the OpenTelemetry setup for a FastAPI application. The configuration is analogous to the Flask example, with adjustments for FastAPI's asynchronous nature.
+The [fastapi_otel_setup.py](fastapi_otel_setup.py) file illustrates the OpenTelemetry setup for a FastAPI application. The configuration is analogous to the Flask example, with adjustments for FastAPI's asynchronous nature.
 
 ### Key Components
 - **Tracing**: Utilizes TracerProvider and OTLPSpanExporter.
@@ -117,7 +114,7 @@ export OTEL_EXPORTER_OTLP_ENDPOINT="http://your-otel-collector:4317"
 ### Flask Application
 ```python
 from flask import Flask
-from flask.otel import setup_instrumentation
+from flask_otel_setup import setup_instrumentation
 
 app = Flask(__name__)
 logger, tracer, meter = setup_instrumentation(app, service_name="my-flask-service")
@@ -135,7 +132,7 @@ python flask_app.py
 ### FastAPI Application
 ```python
 from fastapi import FastAPI
-from fastapi.otel import setup_instrumentation
+from fastapi_otel_setup import setup_instrumentation
 
 app = FastAPI()
 logger, tracer, meter = setup_instrumentation(app, service_name="my-fastapi-service")

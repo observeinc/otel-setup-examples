@@ -39,7 +39,6 @@ npm install \
 
 **Version Compatibility Notes**:
 - Use recent versions of OpenTelemetry packages (v1.9.0+ for API, v0.52.0+ for SDK packages).
-- **For working, tested versions**: Check the project's [`package.json`](package.json) file which contains a set of compatible versions that have been verified to work together
 - Some package combinations may require specific version compatibility - check the [OpenTelemetry JavaScript compatibility matrix](https://github.com/open-telemetry/opentelemetry-js#supported-runtimes) if you encounter version conflicts.
 
 **Critical Import Rules**:
@@ -62,7 +61,7 @@ The example utilizes the OTLP gRPC exporter by default, with the endpoint config
 
 ## 🧪 Generic OpenTelemetry Setup
 
-The [otel.ts](otel.ts) file demonstrates how to set up OpenTelemetry in any Node.js application. It uses the NodeSDK with automatic instrumentation, which works with Express, Fastify, Koa, and other Node.js frameworks without framework-specific configuration.
+The [otel_setup.ts](otel_setup.ts) file demonstrates how to set up OpenTelemetry in any Node.js application. It uses the NodeSDK with automatic instrumentation, which works with Express, Fastify, Koa, and other Node.js frameworks without framework-specific configuration.
 
 ### Key Components
 
@@ -90,7 +89,7 @@ import { logs } from '@opentelemetry/api';
 const logger = logs.getLogger('service');
 
 // ✅ Correct
-import { loggerProvider } from './otel';
+import { loggerProvider } from './otel_setup';
 const logger = loggerProvider.getLogger('service');
 ```
 
@@ -124,7 +123,7 @@ When implementing OpenTelemetry instrumentation, follow these patterns to ensure
 ```typescript
 // Always import these together for full functionality
 import { trace, context, SpanStatusCode } from '@opentelemetry/api';
-import { logger, tracer, meter } from './otel'; // from setup module
+import { logger, tracer, meter } from './otel_setup'; // from setup module
 ```
 
 **Span Management Pattern**:
@@ -179,7 +178,7 @@ export OTEL_EXPORTER_OTLP_ENDPOINT="http://your-otel-collector:4317"
 import * as http from "http";
 import * as os from "os";
 import { trace } from "@opentelemetry/api";
-import { logger, meter, initOtel, shutdownOtel } from "./otel";
+import { logger, meter, initOtel, shutdownOtel } from "./otel_setup";
 
 // CRITICAL: Initialize OpenTelemetry FIRST
 initOtel();
