@@ -41,7 +41,9 @@ pip install \
 ```
 
 **Version Compatibility Notes**:
-- **For working, tested versions**: Check the project's [`requirements.txt`](requirements.txt) file which contains a set of compatible versions that have been verified to work together
+- **For working, tested versions**: Check the framework-specific requirements files which contain sets of compatible versions that have been verified to work together:
+  - Flask: [`flask/requirements.txt`](flask/requirements.txt)
+  - FastAPI: [`fastapi/requirements.txt`](fastapi/requirements.txt)
 
 ## 🔧 Configuration Overview
 
