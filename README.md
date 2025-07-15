@@ -2,14 +2,31 @@
 
 Repo with OpenTelemetry setup examples for different programming languages and frameworks
 
-You should structure the examples like this:
+The repository is structured based on language-specific patterns:
+
 ```
-<language>
-├── <framework>_otel_setup.<language_extension>
+# For languages with generic, framework-agnostic implementations (e.g., Go)
+<language>/
+├── otel.<language_extension>     # Generic setup file that works with any framework
+├── <dependency_file>             # Language-specific dependency file with tested versions
+└── README.md
+
+# For languages with framework-specific implementations (e.g., Python)
+<language>/
+├── <framework1>/
+│   └── otel.<language_extension> # Framework-specific setup
+├── <framework2>/
+│   └── otel.<language_extension> # Framework-specific setup
+├── <dependency_file>             # Language-specific dependency file with tested versions
 └── README.md
 ```
 
-In the `README.md` you should detail which dependencies are needed and any relevant information regarding how to setup OpenTelemetry for that language and for the frameworks you are setting as examples. The README should link to the framework's setup file.
+Each language directory includes:
+- **Setup files**: Implementation code for OpenTelemetry instrumentation
+- **Dependency files**: Tested and compatible package versions
+- **README.md**: Language-specific documentation and setup instructions
+
+**💡 Tip**: Use the dependency files as a reference for compatible package versions that have been tested together.
 
 An example of README structure:
 - 📦 Dependencies
