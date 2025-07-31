@@ -11,10 +11,11 @@ import {
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
-import { trace, metrics } from "@opentelemetry/api";
+import { trace, metrics, Tracer, Meter } from "@opentelemetry/api";
+import { Logger } from "@opentelemetry/api-logs";
 
 // Configuration
-const serviceName = "ts-http-hello";
+const serviceName = "example-service"; // replace with your service name
 const otlpEndpoint =
   process.env.OTEL_EXPORTER_OTLP_ENDPOINT || "http://localhost:4317";
 
@@ -50,21 +51,25 @@ export const loggerProvider = new LoggerProvider({
   processors: [new BatchLogRecordProcessor(logExporter)],
 });
 
-// Get tracer, meter, and logger
-export const tracer = trace.getTracer(serviceName);
-export const meter = metrics.getMeter(serviceName);
-export const logger = loggerProvider.getLogger(serviceName);
-
-// Initialize OpenTelemetry
-export function initOtel(): void {
+// Initialize OpenTelemetry and return initialized components
+export function initOtel(): { tracer: Tracer; logger: Logger; meter: Meter } {
   try {
     sdk.start();
+
+    // Initialize tracer, logger, and meter after SDK is started
+    const tracer = trace.getTracer(serviceName);
+    const logger = loggerProvider.getLogger(serviceName);
+    const meter = metrics.getMeter(serviceName);
+
     logger.emit({
       severityNumber: 9, // INFO
       severityText: "INFO",
       body: "OpenTelemetry SDK started",
     });
+
+    return { tracer, logger, meter };
   } catch (error) {
+    const logger = loggerProvider.getLogger(serviceName);
     logger.emit({
       severityNumber: 17, // ERROR
       severityText: "ERROR",
@@ -79,12 +84,8 @@ export function initOtel(): void {
 export function shutdownOtel(): void {
   try {
     sdk.shutdown();
-    logger.emit({
-      severityNumber: 9, // INFO
-      severityText: "INFO",
-      body: "OpenTelemetry SDK shut down",
-    });
   } catch (error) {
+    const logger = loggerProvider.getLogger(serviceName);
     logger.emit({
       severityNumber: 17, // ERROR
       severityText: "ERROR",
