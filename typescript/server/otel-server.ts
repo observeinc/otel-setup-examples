@@ -31,12 +31,12 @@ const resource = resourceFromAttributes({
 export const sdk = new NodeSDK({
   resource: resource,
   traceExporter: new OTLPTraceExporter({
-    url: otlpEndpoint,
+    url: `${otlpEndpoint}/v1/traces`,
     headers,
   }),
   metricReader: new PeriodicExportingMetricReader({
     exporter: new OTLPMetricExporter({
-      url: otlpEndpoint,
+      url: `${otlpEndpoint}/v1/metrics`,
       headers,
     }),
   }),
@@ -49,7 +49,7 @@ const loggerProvider = new LoggerProvider({
   processors: [
     new BatchLogRecordProcessor(
       new OTLPLogExporter({
-        url: otlpEndpoint,
+        url: `${otlpEndpoint}/v1/logs`,
         headers,
       })
     ),
