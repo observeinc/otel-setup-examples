@@ -39,7 +39,7 @@ const provider = new WebTracerProvider({
   spanProcessors: [
     new SimpleSpanProcessor(
       new OTLPTraceExporter({
-        url: otlpEndpoint,
+        url: `${otlpEndpoint}/v1/traces`,
         headers,
       })
     ),
@@ -52,7 +52,7 @@ const loggerProvider = new LoggerProvider({
   processors: [
     new BatchLogRecordProcessor(
       new OTLPLogExporter({
-        url: otlpEndpoint,
+        url: `${otlpEndpoint}/v1/logs`,
         headers,
       })
     ),

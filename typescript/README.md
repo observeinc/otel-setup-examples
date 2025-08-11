@@ -2,6 +2,9 @@
 
 This repository offers practical examples for instrumenting TypeScript/Node.js applications with OpenTelemetry (OTel). It demonstrates automatic instrumentation using the NodeSDK, which works with any Node.js HTTP framework (Express, Fastify, Koa, etc.), showing how to collect and export traces, metrics, and logs using OTLP exporters.
 
+Whenever performing command line operations using `npm`, `pnpm`, or `yarn`, use the package manager that the repository prefers.
+Can identify the preferred package manager by looking at the `package.json` file or the `*-lock.json` file.
+
 - [📦 Dependencies](#-dependencies)
 - [🔧 Configuration Overview](#-configuration-overview)
 - [🧪 Generic OpenTelemetry Setup](#-generic-opentelemetry-setup)
@@ -25,7 +28,7 @@ This repository offers practical examples for instrumenting TypeScript/Node.js a
 Ensure the following packages are installed:
 
 ```bash
-npm install \
+npm install \ # use `pnpm add` or `yarn add` if the repo prefers it
   @opentelemetry/api \
   @opentelemetry/sdk-node \
   @opentelemetry/exporter-trace-otlp-grpc \
@@ -37,6 +40,9 @@ npm install \
   @opentelemetry/sdk-logs \
   @grpc/grpc-js
 ```
+
+Always install these packages using the preferred package manager of the repository.
+After installing all dependencies, run `{preferred package manager} install` one last time.
 
 **Version Compatibility Notes**:
 
@@ -54,7 +60,7 @@ npm install \
 For development, you'll also need:
 
 ```bash
-npm install --save-dev \
+npm install --save-dev \ # or `pnpm add -D` or `yarn add -D`
   typescript \
   @types/node
 ```
