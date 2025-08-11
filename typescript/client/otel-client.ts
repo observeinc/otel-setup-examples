@@ -27,7 +27,9 @@ const otlpEndpoint =
   process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4317";
 const otlpEndpointBearerToken = process.env.OTEL_EXPORTER_OTLP_BEARER_TOKEN;
 
-const headers = { Authorization: `Bearer ${otlpEndpointBearerToken}` };
+const authHeader = otlpEndpointBearerToken
+  ? { Authorization: `Bearer ${otlpEndpointBearerToken}` }
+  : null;
 
 // Create resource
 const resource = resourceFromAttributes({
@@ -40,7 +42,10 @@ const provider = new WebTracerProvider({
     new SimpleSpanProcessor(
       new OTLPTraceExporter({
         url: `${otlpEndpoint}/v1/traces`,
-        headers,
+        headers: {
+          ...authHeader,
+          "x-observe-target-package": "Tracing",
+        },
       })
     ),
   ],
@@ -53,7 +58,10 @@ const loggerProvider = new LoggerProvider({
     new BatchLogRecordProcessor(
       new OTLPLogExporter({
         url: `${otlpEndpoint}/v1/logs`,
-        headers,
+        headers: {
+          ...authHeader,
+          "x-observe-target-package": "Host Explorer",
+        },
       })
     ),
   ],

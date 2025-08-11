@@ -20,7 +20,9 @@ const otlpEndpoint =
   process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4317";
 const otlpEndpointBearerToken = process.env.OTEL_EXPORTER_OTLP_BEARER_TOKEN;
 
-const headers = { Authorization: `Bearer ${otlpEndpointBearerToken}` };
+const authHeader = otlpEndpointBearerToken
+  ? { Authorization: `Bearer ${otlpEndpointBearerToken}` }
+  : null;
 
 // Create resource
 const resource = resourceFromAttributes({
@@ -32,12 +34,18 @@ export const sdk = new NodeSDK({
   resource: resource,
   traceExporter: new OTLPTraceExporter({
     url: `${otlpEndpoint}/v1/traces`,
-    headers,
+    headers: {
+      ...authHeader,
+      "x-observe-target-package": "Tracing",
+    },
   }),
   metricReader: new PeriodicExportingMetricReader({
     exporter: new OTLPMetricExporter({
       url: `${otlpEndpoint}/v1/metrics`,
-      headers,
+      headers: {
+        ...authHeader,
+        "x-observe-target-package": "Metrics",
+      },
     }),
   }),
   instrumentations: [getNodeAutoInstrumentations()],
@@ -50,7 +58,10 @@ const loggerProvider = new LoggerProvider({
     new BatchLogRecordProcessor(
       new OTLPLogExporter({
         url: `${otlpEndpoint}/v1/logs`,
-        headers,
+        headers: {
+          ...authHeader,
+          "x-observe-target-package": "Host Explorer",
+        },
       })
     ),
   ],
