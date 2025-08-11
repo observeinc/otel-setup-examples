@@ -42,6 +42,7 @@ npm install \ # use `pnpm add` or `yarn add` if the repo prefers it
 ```
 
 Always install these packages using the preferred package manager of the repository.
+After installing all dependencies, run `{preferred package manager} install` one last time.
 
 **Version Compatibility Notes**:
 
