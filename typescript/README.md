@@ -67,7 +67,7 @@ npm install --save-dev \ # or `pnpm add -D` or `yarn add -D`
 
 ## 🔧 Configuration Overview
 
-The example utilizes the OTLP HTTP exporter by default, with the endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. If not set, it defaults to `http://localhost:4317`.
+The example utilizes the OTLP HTTP exporter by default, with the endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. If not set, it defaults to `http://localhost:4318`.
 
 ## 🧪 Generic OpenTelemetry Setup
 
@@ -192,14 +192,14 @@ The automatic instrumentation detects and instruments:
 
 ## 📈 Exporting Telemetry Data
 
-The setup is configured to export telemetry data using the OTLP gRPC protocol. Ensure that your OpenTelemetry Collector or backend is set up to receive data at the specified endpoint (`http://localhost:4317` by default).
+The setup is configured to export telemetry data using the OTLP HTTP protocol. Ensure that your OpenTelemetry Collector or backend is set up to receive data at the specified endpoint (`http://localhost:4318` by default).
 
 ## 🧪 Example Usage
 
 Set the OTLP Endpoint (if different from default):
 
 ```bash
-export OTEL_EXPORTER_OTLP_ENDPOINT="http://your-otel-collector:4317"
+export OTEL_EXPORTER_OTLP_ENDPOINT="http://your-otel-collector:4318"
 ```
 
 ### HTTP Server Application
