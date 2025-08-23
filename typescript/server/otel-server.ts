@@ -60,7 +60,7 @@ const loggerProvider = new LoggerProvider({
         url: `${otlpEndpoint}/v1/logs`,
         headers: {
           ...authHeader,
-          "x-observe-target-package": "Host Explorer",
+          "x-observe-target-package": "Logs",
         },
       })
     ),
