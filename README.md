@@ -1,43 +1,42 @@
-# otel-setup-examples
+# OpenTelemetry Setup Examples Directory
 
-Repo with OpenTelemetry setup examples for different programming languages and frameworks
+This repository contains comprehensive OpenTelemetry setup examples for different programming languages and frameworks. This README serves as a directory for LLMs to quickly locate and understand the available documentation and examples.
 
-The repository is structured based on language-specific patterns:
+## 📚 Available Documentation by Language
 
-```
-# For languages with generic, framework-agnostic implementations (e.g., Go)
-<language>/
-├── otel.<language_extension>     # Generic setup file that works with any framework
-├── <dependency_file>             # Language-specific dependency file with tested versions
-└── README.md
+### 🐹 Go
 
-# For languages with framework-specific implementations (e.g., Python)
-<language>/
-├── <framework1>/
-│   ├── otel.<language_extension> # Framework-specific setup
-│   └── <dependency_file>         # Framework-specific dependency file with tested versions
-├── <framework2>/
-│   ├── otel.<language_extension> # Framework-specific setup
-│   └── <dependency_file>         # Framework-specific dependency file with tested versions
-└── README.md
-```
+- **Main Documentation**: [`go/README.md`](go/README.md)
+  - Generic OpenTelemetry setup that works with any Go HTTP framework
+  - Comprehensive examples for traces, metrics, and logs using OTLP exporters
+  - HTTP instrumentation compatible with standard library and popular frameworks
+  - Structured logging with slog integration
+  - Tested dependency versions in [`go/go.mod`](go/go.mod)
 
-Each language directory includes:
-- **Setup files**: Implementation code for OpenTelemetry instrumentation
-- **Dependency files**: Tested and compatible package versions
-  - `go.mod` for Go projects
-  - `package.json` for TypeScript/Node.js projects
-  - `requirements.txt` for Python projects (framework-specific: `flask/requirements.txt`, `fastapi/requirements.txt`)
-- **README.md**: Language-specific documentation and setup instructions
+### 🐍 Python
 
-**💡 Tip**: Use the dependency files as a reference for compatible package versions that have been tested together.
+- **Main Documentation**: [`python/README.md`](python/README.md)
+  - Framework-specific examples for Flask, FastAPI, and gRPC
+  - Both manual and automatic instrumentation methods
+  - Comprehensive coverage of traces, metrics, and logs
+  - Framework-specific tested dependencies:
+    - Flask: [`python/flask/requirements.txt`](python/flask/requirements.txt)
+    - FastAPI: [`python/fastapi/requirements.txt`](python/fastapi/requirements.txt)
+    - gRPC: [`python/grpc/requirements.txt`](python/grpc/requirements.txt)
 
-An example of README structure:
-- 📦 Dependencies
-- 🔧 Configuration Overview
-- 🧪 <Framework> Application Example
-  - Key Components
-- 📈 Exporting Telemetry Data
-- 🧪 Example Usage
-  - <Framework> Application
-- 📚 References
+### 📘 TypeScript/Node.js
+
+- **Main Documentation**: [`typescript/README.md`](typescript/README.md)
+  - Generic setup using NodeSDK with automatic instrumentation
+  - Works with Express, Fastify, Koa, and other Node.js frameworks
+  - Separate server and client configurations
+  - Tested dependency versions:
+    - Server: [`typescript/server/package.json`](typescript/server/package.json)
+    - Client: [`typescript/client/package.json`](typescript/client/package.json)
+
+#### TypeScript Framework-Specific Documentation
+
+- **TanStack Start**: [`typescript/tanstack-start/README.md`](typescript/tanstack-start/README.md)
+  - Specific setup instructions for TanStack Start applications
+  - Server and client entry point configurations
+  - Environment variable handling for client-side telemetry
