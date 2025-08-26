@@ -80,6 +80,7 @@ Or add both if needed for fullstack applications.
 
 For framework specific details, refer to the framework-specific documentation:
 
+- Next.js: [`nextjs/README.md`](nextjs/README.md)
 - Tanstack Start: [`tanstack-start/README.md`](tanstack-start/README.md)
 
 ### Key Components

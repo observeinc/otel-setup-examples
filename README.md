@@ -36,6 +36,11 @@ This repository contains comprehensive OpenTelemetry setup examples for differen
 
 #### TypeScript Framework-Specific Documentation
 
+- **Next.js**: [`typescript/nextjs/README.md`](typescript/nextjs/README.md)
+  - Complete setup guide for Next.js applications (App Router and Pages Router)
+  - Built-in OpenTelemetry support with @vercel/otel and manual configuration
+  - Client-side and server-side instrumentation
+  - Default spans and custom telemetry examples
 - **TanStack Start**: [`typescript/tanstack-start/README.md`](typescript/tanstack-start/README.md)
   - Specific setup instructions for TanStack Start applications
   - Server and client entry point configurations
