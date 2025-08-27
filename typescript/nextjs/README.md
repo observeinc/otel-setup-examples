@@ -12,6 +12,12 @@ Create an `instrumentation.ts` (or `.js`) file in the root directory of your Nex
 
 If the project uses the `pageExtensions` config option to add a suffix, update the instrumentation filename to match.
 
+Install the additional packages `import-in-the-middle` and `require-in-the-middle` which are needed for turbopack to resolve the opentelemetry dependencies:
+
+```
+{preferred package manager} install import-in-the-middle require-in-the-middle
+```
+
 ### Create OpenTelemetry Configuration Files
 
 Copy the `otel-server.ts` and `otel-client.ts` files from the [`server/otel-server.ts`](../server/otel-server.ts) and [`client/otel-client.ts`](../client/otel-client.ts) files in this repository to the root of your Next.js project.
