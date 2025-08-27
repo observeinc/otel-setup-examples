@@ -25,21 +25,9 @@ Can identify the preferred package manager by looking at the `package.json` file
 
 ## 📦 Dependencies
 
-Ensure the following packages are installed:
-
-```bash
-npm install \ # use `pnpm add` or `yarn add` if the repo prefers it
-  @opentelemetry/api \
-  @opentelemetry/sdk-node \
-  @opentelemetry/exporter-trace-otlp-grpc \
-  @opentelemetry/exporter-logs-otlp-grpc \
-  @opentelemetry/exporter-metrics-otlp-grpc \
-  @opentelemetry/auto-instrumentations-node \
-  @opentelemetry/resources \
-  @opentelemetry/semantic-conventions \
-  @opentelemetry/sdk-logs \
-  @grpc/grpc-js
-```
+Install all dependencies using the preferred package manager of the repository.
+For server side, install the dependencies from the [`server/package.json`](server/package.json) file.
+For client side, install the dependencies from the [`client/package.json`](client/package.json) file.
 
 Always install these packages using the preferred package manager of the repository.
 After installing all dependencies, run `{preferred package manager} install` one last time.
