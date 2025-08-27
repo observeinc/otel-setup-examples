@@ -10,28 +10,7 @@ Create an `instrumentation.ts` (or `.js`) file in the root directory of your Nex
 - **NOT** inside the `app` or `pages` directory
 - Inside the `src` folder if you're using one (alongside `pages` and `app`)
 
-If you use the `pageExtensions` config option to add a suffix, update the instrumentation filename to match.
-
-## OpenTelemetry Configuration
-
-Install the required OpenTelemetry packages using the preferred package manager:
-
-```bash
-npm install \
-  @opentelemetry/api \
-  @opentelemetry/sdk-node \
-  @opentelemetry/resources \
-  @opentelemetry/semantic-conventions \
-  @opentelemetry/sdk-trace-node \
-  @opentelemetry/exporter-trace-otlp-http \
-  @opentelemetry/exporter-logs-otlp-http \
-  @opentelemetry/exporter-metrics-otlp-http \
-  @opentelemetry/auto-instrumentations-node \
-  @opentelemetry/sdk-logs \
-  @grpc/grpc-js
-```
-
-Always install these packages using the preferred package manager of the repository. After installing all dependencies, run the package manager install command one last time.
+If the project uses the `pageExtensions` config option to add a suffix, update the instrumentation filename to match.
 
 ### Create OpenTelemetry Configuration Files
 
@@ -53,7 +32,7 @@ export async function register() {
 
 **Note**: In Next.js 15+, the instrumentation file is supported by default and does not require any configuration in `next.config.js`.
 
-If they are using an older version of Next.js (<15), they will need to add the following to their `next.config.js` file:
+If the project is using an older version of Next.js (<15), add the following to their `next.config.js` file:
 
 ```javascript
 /** @type {import('next').NextConfig} */
