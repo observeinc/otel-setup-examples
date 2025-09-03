@@ -16,13 +16,27 @@ This repository contains comprehensive OpenTelemetry setup examples for differen
 ### 🐍 Python
 
 - **Main Documentation**: [`python/README.md`](python/README.md)
-  - Framework-specific examples for Flask, FastAPI, and gRPC
+  - Overview of Python OpenTelemetry instrumentation approaches
   - Both manual and automatic instrumentation methods
-  - Comprehensive coverage of traces, metrics, and logs
-  - Framework-specific tested dependencies:
-    - Flask: [`python/flask/requirements.txt`](python/flask/requirements.txt)
-    - FastAPI: [`python/fastapi/requirements.txt`](python/fastapi/requirements.txt)
-    - gRPC: [`python/grpc/requirements.txt`](python/grpc/requirements.txt)
+  - Comprehensive coverage of traces, metrics, and logs using OTLP exporters
+  - Framework-agnostic patterns and best practices
+
+#### Python Framework-Specific Documentation
+
+- **FastAPI**: [`python/fastapi/README.md`](python/fastapi/README.md)
+  - Async/await compatible OpenTelemetry setup for FastAPI applications
+  - ASGI middleware integration and background task instrumentation
+  - Tested dependency versions: [`python/fastapi/requirements.txt`](python/fastapi/requirements.txt)
+
+- **Flask**: [`python/flask/README.md`](python/flask/README.md)
+  - WSGI-based OpenTelemetry setup for Flask applications
+  - Route-level instrumentation and error handler integration
+  - Tested dependency versions: [`python/flask/requirements.txt`](python/flask/requirements.txt)
+
+- **gRPC**: [`python/grpc/README.md`](python/grpc/README.md)
+  - Client and server instrumentation for gRPC applications
+  - Protobuf integration and bidirectional streaming support
+  - Tested dependency versions: [`python/grpc/requirements.txt`](python/grpc/requirements.txt)
 
 ### 📘 TypeScript/Node.js
 
