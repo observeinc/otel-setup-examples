@@ -1,5 +1,4 @@
-import { Meter, metrics, trace, Tracer } from "@opentelemetry/api";
-import { logs, Logger, SeverityNumber } from "@opentelemetry/api-logs";
+import { logs, SeverityNumber } from "@opentelemetry/api-logs";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
@@ -68,7 +67,7 @@ const loggerProvider = new LoggerProvider({
 });
 
 // Initialize OpenTelemetry and return initialized components
-export function initOtel(): { tracer: Tracer; logger: Logger; meter: Meter } {
+export function initOtel() {
   try {
     // Registering instrumentations / plugins
     registerInstrumentations({
@@ -83,24 +82,17 @@ export function initOtel(): { tracer: Tracer; logger: Logger; meter: Meter } {
       ],
     });
 
+    logs.setGlobalLoggerProvider(loggerProvider);
     provider.register({});
 
-    // Initialize tracer, logger, and meter after SDK is started
-    const tracer = trace.getTracer(serviceName);
-    const logger = loggerProvider.getLogger(serviceName);
-    const meter = metrics.getMeter(serviceName);
-
-    logs.setGlobalLoggerProvider(loggerProvider);
-
+    const logger = logs.getLogger(serviceName);
     logger.emit({
       severityNumber: SeverityNumber.INFO,
       severityText: "INFO",
       body: "OpenTelemetry Web SDK started",
     });
-
-    return { tracer, logger, meter };
   } catch (error) {
-    const logger = loggerProvider.getLogger(serviceName);
+    const logger = logs.getLogger(serviceName);
     logger.emit({
       severityNumber: SeverityNumber.ERROR,
       severityText: "ERROR",
