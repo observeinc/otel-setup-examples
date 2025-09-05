@@ -69,6 +69,7 @@ Or add both if needed for fullstack applications.
 For framework specific details, refer to the framework-specific documentation:
 
 - Tanstack Start: [`tanstack-start/README.md`](tanstack-start/README.md)
+- Netlify Functions: [`netlify/README.md`](netlify/README.md)
 
 ### Key Components
 

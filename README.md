@@ -54,3 +54,9 @@ This repository contains comprehensive OpenTelemetry setup examples for differen
   - Specific setup instructions for TanStack Start applications
   - Server and client entry point configurations
   - Environment variable handling for client-side telemetry
+
+- **Netlify Functions**: [`typescript/netlify/README.md`](typescript/netlify/README.md)
+  - Serverless-optimized OpenTelemetry setup for Netlify Functions
+  - FaaS-specific resource attributes and helper functions
+  - Optimized export intervals and batch processing for serverless environments
+  - Tested dependency versions: [`typescript/netlify/package.json`](typescript/netlify/package.json)

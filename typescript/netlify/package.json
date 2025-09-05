@@ -1,0 +1,25 @@
+{
+  "name": "otel-netlify-setup-example",
+  "version": "0.1.0",
+  "description": "Example OTEL in TypeScript Netlify Functions",
+  "author": "",
+  "license": "SEE LICENSE IN license.md",
+  "dependencies": {
+    "@netlify/functions": "^4.2.5",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/api-logs": "^0.203.0",
+    "@opentelemetry/exporter-logs-otlp-http": "^0.203.0",
+    "@opentelemetry/exporter-metrics-otlp-http": "^0.203.0",
+    "@opentelemetry/exporter-trace-otlp-http": "^0.203.0",
+    "@opentelemetry/resources": "^2.0.1",
+    "@opentelemetry/sdk-logs": "^0.203.0",
+    "@opentelemetry/sdk-metrics": "^2.0.1",
+    "@opentelemetry/sdk-node": "^0.203.0",
+    "@opentelemetry/semantic-conventions": "^1.36.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "netlify-cli": "^22.4.0",
+    "typescript": "^5.9.2"
+  }
+}
