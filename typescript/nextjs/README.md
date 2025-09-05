@@ -29,7 +29,8 @@ Create `instrumentation.ts` in your project root with the following content:
 ```typescript
 export async function register() {
   if (process.env.NEXT_RUNTIME === "nodejs") {
-    await import("./otel-server");
+    const { initOtel } = await import("./otel-server");
+    initOtel();
   }
 }
 ```
