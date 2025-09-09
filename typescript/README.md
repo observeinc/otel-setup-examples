@@ -20,7 +20,7 @@ Can identify the preferred package manager by looking at the `package.json` file
 - [🧪 Example Usage](#-example-usage)
   - [HTTP Server Application](#http-server-application)
 - [🚀 Serverless Functions Adaptations](#-serverless-functions-adaptations)
-  - [1. Export Telemetry Instances](#1-export-telemetry-instances)
+  - [1. Export NodeSDK for serverless forceFlush](#1-export-nodesdk-for-serverless-forceflush)
   - [2. Optimize Batch Processing for Serverless](#2-optimize-batch-processing-for-serverless)
   - [3. Serverless Function Handler Pattern](#3-serverless-function-handler-pattern)
   - [4. Dependencies for Serverless Functions](#4-dependencies-for-serverless-functions)
@@ -265,38 +265,10 @@ Build output note: ensure your TypeScript builds place compiled function JavaScr
 
 For serverless functions (e.g., Netlify Functions, AWS Lambda, Vercel Functions), the base server setup works as-is! Just make these small adaptations:
 
-### 1. Export Telemetry Instances
+### 1. Export NodeSDK for serverless forceFlush
 
-Note: ensure your otel module also exports `sdk` (NodeSDK) as in the server example; the handler uses it for `forceFlush()`.
+Ensure your otel module also exports `sdk` (NodeSDK) as in the server example; the handler uses it for `forceFlush()`.
 
-```typescript
-// Add these exports for use in function handlers
-export let logger: ReturnType<typeof logs.getLogger>;
-export let tracer: ReturnType<typeof import("@opentelemetry/api").trace.getTracer>;
-export let meter: ReturnType<typeof import("@opentelemetry/api").metrics.getMeter>;
-
-export function initOtel() {
-  try {
-    logs.setGlobalLoggerProvider(loggerProvider);
-    sdk.start();
-
-    // Initialize and export instances
-    const { trace, metrics } = require("@opentelemetry/api");
-    logger = logs.getLogger(serviceName);
-    tracer = trace.getTracer(serviceName, serviceVersion);
-    meter = metrics.getMeter(serviceName, serviceVersion);
-
-    logger.emit({
-      severityNumber: SeverityNumber.INFO,
-      severityText: "INFO",
-      body: "OpenTelemetry SDK started for serverless functions",
-    });
-  } catch (error) {
-    console.error("Error starting OpenTelemetry SDK:", error);
-    throw error;
-  }
-}
-```
 
 ### 2. Optimize Batch Processing for Serverless
 
@@ -352,7 +324,10 @@ Why this is needed vs. the regular server otel:
 ```typescript
 import { trace, SpanStatusCode } from "@opentelemetry/api";
 import { SeverityNumber } from "@opentelemetry/api-logs";
-import { initOtel, logger, tracer, sdk } from "./otel"; // sdk = NodeSDK from your otel setup
+import { initOtel, sdk } from "./otel"; // sdk = NodeSDK from your otel setup
+import { logs } from "@opentelemetry/api-logs";
+const logger = logs.getLogger("function");
+const tracer = trace.getTracer("function");
 
 initOtel();
 
