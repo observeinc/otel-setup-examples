@@ -1,7 +1,7 @@
 import { logs, SeverityNumber } from "@opentelemetry/api-logs";
 import { getNodeAutoInstrumentations } from "@opentelemetry/auto-instrumentations-node";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
-import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-http";
+import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { resourceFromAttributes } from "@opentelemetry/resources";
 import {
@@ -44,6 +44,7 @@ export const sdk = new NodeSDK({
       headers: {
         ...authHeader,
         "x-observe-target-package": "Metrics",
+        "Content-Type": "application/x-protobuf",
       },
     }),
   }),
