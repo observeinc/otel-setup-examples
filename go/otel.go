@@ -7,9 +7,9 @@ import (
 
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/otel"
-	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc"
-	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc"
-	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
+	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp"
+	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp"
 	"go.opentelemetry.io/otel/log/global"
 	"go.opentelemetry.io/otel/metric"
 	sdklog "go.opentelemetry.io/otel/sdk/log"
@@ -27,11 +27,20 @@ var (
 	appLogger *slog.Logger
 )
 
-// setupTracing configures OpenTelemetry tracing with OTLP gRPC exporter.
-func setupTracing(ctx context.Context, res *resource.Resource, otlpEndpoint string) (*sdktrace.TracerProvider, error) {
-	traceExporter, err := otlptracegrpc.New(ctx,
-		otlptracegrpc.WithEndpoint(otlpEndpoint),
-		otlptracegrpc.WithInsecure(),
+// setupTracing configures OpenTelemetry tracing with OTLP HTTP exporter.
+func setupTracing(ctx context.Context, res *resource.Resource, otlpEndpoint, bearerToken string) (*sdktrace.TracerProvider, error) {
+	// Prepare headers
+	headers := map[string]string{
+		"x-observe-target-package": "Tracing",
+	}
+	if bearerToken != "" {
+		headers["Authorization"] = "Bearer " + bearerToken
+	}
+
+	traceExporter, err := otlptracehttp.New(ctx,
+		otlptracehttp.WithEndpoint(otlpEndpoint),
+		otlptracehttp.WithURLPath("/v1/traces"),
+		otlptracehttp.WithHeaders(headers),
 	)
 	if err != nil {
 		return nil, err
@@ -42,15 +51,24 @@ func setupTracing(ctx context.Context, res *resource.Resource, otlpEndpoint stri
 		sdktrace.WithResource(res),
 	)
 	otel.SetTracerProvider(tp)
-	
+
 	return tp, nil
 }
 
-// setupMetrics configures OpenTelemetry metrics with OTLP gRPC exporter.
-func setupMetrics(ctx context.Context, res *resource.Resource, otlpEndpoint string) (*sdkmetric.MeterProvider, error) {
-	metricExporter, err := otlpmetricgrpc.New(ctx,
-		otlpmetricgrpc.WithEndpoint(otlpEndpoint),
-		otlpmetricgrpc.WithInsecure(),
+// setupMetrics configures OpenTelemetry metrics with OTLP HTTP exporter.
+func setupMetrics(ctx context.Context, res *resource.Resource, otlpEndpoint, bearerToken string) (*sdkmetric.MeterProvider, error) {
+	// Prepare headers
+	headers := map[string]string{
+		"x-observe-target-package": "Metrics",
+	}
+	if bearerToken != "" {
+		headers["Authorization"] = "Bearer " + bearerToken
+	}
+
+	metricExporter, err := otlpmetrichttp.New(ctx,
+		otlpmetrichttp.WithEndpoint(otlpEndpoint),
+		otlpmetrichttp.WithURLPath("/v1/metrics"),
+		otlpmetrichttp.WithHeaders(headers),
 	)
 	if err != nil {
 		return nil, err
@@ -61,15 +79,24 @@ func setupMetrics(ctx context.Context, res *resource.Resource, otlpEndpoint stri
 		sdkmetric.WithResource(res),
 	)
 	otel.SetMeterProvider(mp)
-	
+
 	return mp, nil
 }
 
-// setupLogging configures OpenTelemetry logging with OTLP gRPC exporter and structured logging.
-func setupLogging(ctx context.Context, res *resource.Resource, otlpEndpoint, serviceName string) (*sdklog.LoggerProvider, error) {
-	logExporter, err := otlploggrpc.New(ctx,
-		otlploggrpc.WithEndpoint(otlpEndpoint),
-		otlploggrpc.WithInsecure(),
+// setupLogging configures OpenTelemetry logging with OTLP HTTP exporter and structured logging.
+func setupLogging(ctx context.Context, res *resource.Resource, otlpEndpoint, bearerToken, serviceName string) (*sdklog.LoggerProvider, error) {
+	// Prepare headers
+	headers := map[string]string{
+		"x-observe-target-package": "Logs",
+	}
+	if bearerToken != "" {
+		headers["Authorization"] = "Bearer " + bearerToken
+	}
+
+	logExporter, err := otlploghttp.New(ctx,
+		otlploghttp.WithEndpoint(otlpEndpoint),
+		otlploghttp.WithURLPath("/v1/logs"),
+		otlploghttp.WithHeaders(headers),
 	)
 	if err != nil {
 		return nil, err
@@ -84,7 +111,7 @@ func setupLogging(ctx context.Context, res *resource.Resource, otlpEndpoint, ser
 	// Create structured logger that will send logs to OTLP
 	otelHandler := otelslog.NewHandler(serviceName)
 	appLogger = slog.New(otelHandler)
-	
+
 	return lp, nil
 }
 
@@ -96,8 +123,11 @@ func setupInstrumentation(serviceName string) func() {
 	// Get OTLP endpoint from environment or use default
 	otlpEndpoint := os.Getenv("OTEL_EXPORTER_OTLP_ENDPOINT")
 	if otlpEndpoint == "" {
-		otlpEndpoint = "localhost:4317"
+		otlpEndpoint = "http://localhost:4318"
 	}
+
+	// Get bearer token from environment
+	bearerToken := os.Getenv("OTEL_EXPORTER_OTLP_BEARER_TOKEN")
 
 	// Create resource with service identification
 	res, err := resource.New(ctx,
@@ -112,7 +142,7 @@ func setupInstrumentation(serviceName string) func() {
 	}
 
 	// Setup tracing
-	tp, err := setupTracing(ctx, res, otlpEndpoint)
+	tp, err := setupTracing(ctx, res, otlpEndpoint, bearerToken)
 	if err != nil {
 		slog.Error("failed to setup tracing", "error", err)
 		panic(err)
@@ -120,7 +150,7 @@ func setupInstrumentation(serviceName string) func() {
 	appTracer = otel.Tracer(serviceName)
 
 	// Setup metrics
-	mp, err := setupMetrics(ctx, res, otlpEndpoint)
+	mp, err := setupMetrics(ctx, res, otlpEndpoint, bearerToken)
 	if err != nil {
 		slog.Error("failed to setup metrics", "error", err)
 		panic(err)
@@ -128,20 +158,20 @@ func setupInstrumentation(serviceName string) func() {
 	appMeter = otel.Meter(serviceName)
 
 	// Setup logging
-	lp, err := setupLogging(ctx, res, otlpEndpoint, serviceName)
+	lp, err := setupLogging(ctx, res, otlpEndpoint, bearerToken, serviceName)
 	if err != nil {
 		slog.Error("failed to setup logging", "error", err)
 		panic(err)
 	}
 
-	appLogger.Info("OpenTelemetry instrumentation initialized", 
-		"service", serviceName, 
+	appLogger.Info("OpenTelemetry instrumentation initialized",
+		"service", serviceName,
 		"endpoint", otlpEndpoint)
 
 	// Return cleanup function
 	return func() {
 		appLogger.Info("Shutting down OpenTelemetry instrumentation")
-		
+
 		if err := tp.Shutdown(ctx); err != nil {
 			slog.Error("failed to shutdown tracer provider", "error", err)
 		}

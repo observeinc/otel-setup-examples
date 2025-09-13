@@ -33,9 +33,9 @@ Ensure the following packages are installed in your `go.mod`:
 go get \
   go.opentelemetry.io/otel \
   go.opentelemetry.io/otel/sdk \
-  go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc \
-  go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc \
-  go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc \
+  go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp \
+  go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp \
+  go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp \
   go.opentelemetry.io/otel/sdk/log \
   go.opentelemetry.io/otel/sdk/metric \
   go.opentelemetry.io/otel/log \
@@ -63,7 +63,7 @@ go get github.com/labstack/echo/v4 \
 - Use Go 1.21+ for best OpenTelemetry support
 - OpenTelemetry Go packages use different versioning schemes:
   - Core packages (otel, sdk) use v1.x.x versioning
-  - Log exporters use v0.x.x versioning (e.g., otlploggrpc v0.10.0)
+  - Log exporters use v0.x.x versioning (e.g., otlploghttp v0.14.0)
   - Contrib packages may have different version cycles
 - **For working, tested versions**: Check the project's [`go.mod`](go.mod) file which contains a set of compatible versions that have been verified to work together
 - Check the [OpenTelemetry Go Compatibility Matrix](https://github.com/open-telemetry/opentelemetry-go#compatibility) for supported version combinations
@@ -72,7 +72,20 @@ go get github.com/labstack/echo/v4 \
 
 ## 🔧 Configuration Overview
 
-The example utilizes the OTLP gRPC exporter by default, with the endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. If not set, it defaults to `localhost:4317` (note: no `http://` prefix for gRPC).
+The example utilizes the OTLP HTTP exporter by default, with the endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. If not set, it defaults to `http://localhost:4318`.
+
+### Required Environment Variables
+
+To use with Observe or other OTLP-compatible backends, set these two environment variables:
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://185003257558.collect.observeinc.com/v2/otel
+export OTEL_EXPORTER_OTLP_BEARER_TOKEN=<your-token-here>
+```
+
+The implementation automatically includes the required headers:
+- `Authorization: Bearer <token>` (when `OTEL_EXPORTER_OTLP_BEARER_TOKEN` is set)
+- `x-observe-target-package: Tracing|Metrics|Logs` (depending on the telemetry type)
 
 ## 🧪 Generic OpenTelemetry Setup
 
@@ -80,11 +93,63 @@ The [otel_setup.go](otel_setup.go) file demonstrates how to set up OpenTelemetry
 
 ### Key Components
 
-- **Tracing**: Configured using TracerProvider and OTLPTraceExporter with batch processing.
-- **Metrics**: Set up with MeterProvider and OTLPMetricExporter using periodic export.
-- **Logging**: Implemented via LoggerProvider, OTLPLogExporter, and structured logging with `slog`.
+- **Tracing**: Configured using TracerProvider and OTLP HTTP TraceExporter with batch processing.
+- **Metrics**: Set up with MeterProvider and OTLP HTTP MetricExporter using periodic export.
+- **Logging**: Implemented via LoggerProvider, OTLP HTTP LogExporter, and structured logging with `slog`.
+- **Authentication**: Automatic Bearer token authentication when `OTEL_EXPORTER_OTLP_BEARER_TOKEN` is provided.
+- **Headers**: Includes required `x-observe-target-package` headers for proper telemetry routing.
 - **Instrumentation**: HTTP instrumentation via `otelhttp` middleware that works with any HTTP handler.
 - **Resource**: Proper service identification using semantic conventions.
+
+## 🚀 Quick Start
+
+### 1. Set Environment Variables
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://185003257558.collect.observeinc.com/v2/otel
+export OTEL_EXPORTER_OTLP_BEARER_TOKEN=<your-token-here>
+```
+
+### 2. Initialize OpenTelemetry
+
+```go
+package main
+
+import (
+    "log"
+    // ... other imports
+)
+
+func main() {
+    // Initialize OpenTelemetry - reads environment variables automatically
+    cleanup := setupInstrumentation("my-service")
+    defer cleanup()
+
+    // Get telemetry instances
+    tracer := GetTracer()
+    meter := GetMeter()
+    logger := GetLogger()
+
+    // Use them in your application...
+}
+```
+
+### 3. Use Telemetry in Your Code
+
+```go
+// Create spans for tracing
+ctx, span := tracer.Start(ctx, "operation_name")
+defer span.End()
+
+// Add metrics
+counter, _ := meter.Int64Counter("requests_total")
+counter.Add(ctx, 1)
+
+// Structured logging
+logger.InfoContext(ctx, "Operation completed", "result", "success")
+```
+
+See the usage examples above for implementation details.
 
 ### Common Usage Patterns
 
@@ -176,7 +241,7 @@ func main() {
     // Initialize OpenTelemetry first
     shutdown := setupInstrumentation()
     defer shutdown()
-    
+
     // Application code follows...
 }
 ```
@@ -252,9 +317,9 @@ go get go.opentelemetry.io/otel go.opentelemetry.io/otel/sdk
 3. **Add OTLP exporters**:
 
 ```bash
-go get go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc \
-       go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetricgrpc \
-       go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploggrpc
+go get go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracehttp \
+       go.opentelemetry.io/otel/exporters/otlp/otlpmetric/otlpmetrichttp \
+       go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp
 ```
 
 4. **Add instrumentation libraries as needed**:
@@ -296,7 +361,7 @@ This approach maintains Go's explicit nature while providing comprehensive obser
 
 ## 📈 Exporting Telemetry Data
 
-The setup is configured to export telemetry data using the OTLP gRPC protocol. Ensure that your OpenTelemetry Collector or backend is set up to receive data at the specified endpoint (`localhost:4317` by default).
+The setup is configured to export telemetry data using the OTLP HTTP protocol. Ensure that your OpenTelemetry Collector or backend is set up to receive data at the specified endpoint (`http://localhost:4318` by default).
 
 ## 🧪 Example Usage
 
@@ -317,17 +382,17 @@ import (
     "fmt"
     "net/http"
     "os"
-    
+
     "go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 func hello(w http.ResponseWriter, req *http.Request) {
     // Structured logging with automatic trace correlation
     appLogger.Info("Hello endpoint accessed")
-    
+
     // Manual metrics
     requestCounter.Add(req.Context(), 1)
-    
+
     fmt.Fprintf(w, "Hello, OpenTelemetry & Go!")
 }
 
@@ -335,20 +400,20 @@ func main() {
     // Initialize OpenTelemetry
     shutdown := setupInstrumentation()
     defer shutdown()
-    
+
     appLogger.Info("Starting HTTP server with OpenTelemetry")
-    
+
     mux := http.NewServeMux()
-    
+
     // Instrumented handler
     handler := otelhttp.NewHandler(http.HandlerFunc(hello), "HelloHandler")
     mux.Handle("/hello", handler)
-    
+
     port := os.Getenv("PORT")
     if port == "" {
         port = "8090"
     }
-    
+
     http.ListenAndServe(":"+port, mux)
 }
 ```
