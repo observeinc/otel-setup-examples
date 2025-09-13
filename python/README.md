@@ -52,17 +52,32 @@ pip install \
 
 ## 🔧 Configuration Overview
 
-The examples utilize the OTLP gRPC exporter by default, with the endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. If not set, it defaults to `http://localhost:4317`.
+The examples utilize the OTLP HTTP exporter by default, with the endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. If not set, it defaults to `http://localhost:4318`.
+
+### Required Environment Variables
+
+To use with Observe or other OTLP-compatible backends, set these two environment variables:
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://185003257558.collect.observeinc.com/v2/otel
+export OTEL_EXPORTER_OTLP_BEARER_TOKEN=<your-token-here>
+```
+
+The implementation automatically includes the required headers:
+- `Authorization: Bearer <token>` (when `OTEL_EXPORTER_OTLP_BEARER_TOKEN` is set)
+- `x-observe-target-package: Tracing|Metrics|Logs` (depending on the telemetry type)
 
 ## 🧪 Flask Application Example
 
 The [flask/otel.py](flask/otel.py) file demonstrates how to set up OpenTelemetry in a Flask application. It includes configurations for tracing, metrics, and logging, along with instrumentation for Flask and logging modules.
 
 ### Key Components
-- **Tracing**: Configured using TracerProvider and OTLPSpanExporter.
-- **Metrics**: Set up with MeterProvider and OTLPMetricExporter.
-- **Logging**: Implemented via LoggerProvider and OTLPLogExporter.
+- **Tracing**: Configured using TracerProvider and OTLP HTTP SpanExporter with bearer token authentication.
+- **Metrics**: Set up with MeterProvider and OTLP HTTP MetricExporter with required headers.
+- **Logging**: Implemented via LoggerProvider and OTLP HTTP LogExporter with proper authentication.
 - **Instrumentation**: Applied to Flask and logging using FlaskInstrumentor and LoggingInstrumentor.
+- **Authentication**: Automatic Bearer token authentication when `OTEL_EXPORTER_OTLP_BEARER_TOKEN` is provided.
+- **Headers**: Includes required `x-observe-target-package` headers for proper telemetry routing.
 
 The setup functions are modular, allowing for reuse and clarity.
 
@@ -71,10 +86,12 @@ The setup functions are modular, allowing for reuse and clarity.
 The [fastapi/otel.py](fastapi/otel.py) file illustrates the OpenTelemetry setup for a FastAPI application. The configuration is analogous to the Flask example, with adjustments for FastAPI's asynchronous nature.
 
 ### Key Components
-- **Tracing**: Utilizes TracerProvider and OTLPSpanExporter.
-- **Metrics**: Configured with MeterProvider and OTLPMetricExporter.
-- **Logging**: Set up using LoggerProvider and OTLPLogExporter.
+- **Tracing**: Utilizes TracerProvider and OTLP HTTP SpanExporter with bearer token authentication.
+- **Metrics**: Configured with MeterProvider and OTLP HTTP MetricExporter with required headers.
+- **Logging**: Set up using LoggerProvider and OTLP HTTP LogExporter with proper authentication.
 - **Instrumentation**: Applied to FastAPI and logging via FastAPIInstrumentor and LoggingInstrumentor.
+- **Authentication**: Automatic Bearer token authentication when `OTEL_EXPORTER_OTLP_BEARER_TOKEN` is provided.
+- **Headers**: Includes required `x-observe-target-package` headers for proper telemetry routing.
 
 The setup functions mirror those in the Flask example, ensuring consistency across different frameworks.
 
