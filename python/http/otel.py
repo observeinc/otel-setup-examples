@@ -2,7 +2,6 @@ import logging
 import os
 from typing import Tuple
 
-from flask import Flask
 from opentelemetry import metrics, trace
 from opentelemetry._logs import set_logger_provider
 from opentelemetry.exporter.otlp.proto.http._log_exporter import (
@@ -14,8 +13,11 @@ from opentelemetry.exporter.otlp.proto.http.metric_exporter import (
 from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
     OTLPSpanExporter,
 )
-from opentelemetry.instrumentation.flask import FlaskInstrumentor
+
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.instrumentation.urllib3 import URLLib3Instrumentor
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
+
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.metrics import MeterProvider
@@ -56,7 +58,7 @@ def setup_tracing(
         bearer_token: Bearer token for authentication.
 
     Returns:
-        An OpenTelemetry Tracer instance.
+        trace.Tracer: An OpenTelemetry Tracer instance.
     """
     headers = _create_otlp_headers("Tracing", bearer_token)
 
@@ -82,7 +84,7 @@ def setup_metrics(
         bearer_token: Bearer token for authentication.
 
     Returns:
-        An OpenTelemetry Meter instance.
+        metrics.Meter: An OpenTelemetry Meter instance.
     """
     headers = _create_otlp_headers("Metrics", bearer_token)
 
@@ -109,7 +111,7 @@ def setup_logging(
         bearer_token: Bearer token for authentication.
 
     Returns:
-        A configured root logger.
+        logging.Logger: A configured logger instance.
     """
     headers = _create_otlp_headers("Logs", bearer_token)
 
@@ -135,19 +137,20 @@ def setup_logging(
 
 
 def setup_instrumentation(
-    app: Flask, service_name: str
+    service_name: str,
 ) -> Tuple[logging.Logger, trace.Tracer, metrics.Meter]:
     """
-    Instrument a Flask application with OpenTelemetry.
+    Instrument an HTTP service with OpenTelemetry.
 
     Args:
-        app: The Flask application instance to instrument.
         service_name: Logical service name for resource attributes.
 
     Returns:
         Tuple containing (logger, tracer, meter) instances.
     """
-    FlaskInstrumentor().instrument_app(app)
+    # Instrument HTTP libraries for automatic tracing
+    RequestsInstrumentor().instrument()
+    URLLib3Instrumentor().instrument()
 
     resource = Resource(attributes={SERVICE_NAME: service_name})
     otlp_endpoint = os.environ.get(

@@ -1,6 +1,6 @@
 # OpenTelemetry Python Setup Examples <!-- omit from toc -->
 
-This repository offers practical examples for instrumenting Python applications with OpenTelemetry (OTel). It covers both manual and automatic instrumentation methods for Flask, FastAPI, and gRPC frameworks, demonstrating how to collect and export traces, metrics, and logs using OTLP exporters.
+This repository offers practical examples for instrumenting Python applications with OpenTelemetry (OTel). It covers both manual and automatic instrumentation methods for Flask, FastAPI, and HTTP client frameworks, demonstrating how to collect and export traces, metrics, and logs using OTLP exporters.
 
 - [📦 Dependencies](#-dependencies)
 - [🔧 Configuration Overview](#-configuration-overview)
@@ -8,7 +8,7 @@ This repository offers practical examples for instrumenting Python applications 
   - [Key Components](#key-components)
 - [⚡ FastAPI Application Example](#-fastapi-application-example)
   - [Key Components](#key-components-1)
-- [🔌 gRPC Application Example](#-grpc-application-example)
+- [🌐 HTTP Client Application Example](#-http-client-application-example)
   - [Key Components](#key-components-2)
 - [⚙️ Automatic Instrumentation](#️-automatic-instrumentation)
   - [Setup](#setup)
@@ -16,7 +16,7 @@ This repository offers practical examples for instrumenting Python applications 
 - [🧪 Example Usage](#-example-usage)
   - [Flask Application](#flask-application)
   - [FastAPI Application](#fastapi-application)
-  - [gRPC Application](#grpc-application)
+  - [HTTP Client Application](#http-client-application)
 - [📚 References](#-references)
 
 
@@ -29,10 +29,10 @@ pip install \
   opentelemetry-api \
   opentelemetry-sdk \
   opentelemetry-exporter-otlp-proto-http \
-  opentelemetry-exporter-otlp-proto-grpc \
   opentelemetry-instrumentation-flask \
   opentelemetry-instrumentation-fastapi \
-  opentelemetry-instrumentation-grpc \
+  opentelemetry-instrumentation-requests \
+  opentelemetry-instrumentation-urllib3 \
   opentelemetry-instrumentation-logging
 ```
 
@@ -48,21 +48,36 @@ pip install \
 - **For working, tested versions**: Check the framework-specific requirements files which contain sets of compatible versions that have been verified to work together:
   - Flask: [`flask/requirements.txt`](flask/requirements.txt)
   - FastAPI: [`fastapi/requirements.txt`](fastapi/requirements.txt)
-  - gRPC: [`grpc/requirements.txt`](grpc/requirements.txt)
+  - HTTP Client: [`http/requirements.txt`](http/requirements.txt)
 
 ## 🔧 Configuration Overview
 
-The examples utilize the OTLP gRPC exporter by default, with the endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. If not set, it defaults to `http://localhost:4317`.
+The examples utilize the OTLP HTTP exporter by default, with the endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. If not set, it defaults to `http://localhost:4318`.
+
+### Required Environment Variables
+
+To use with Observe or other OTLP-compatible backends, set these two environment variables:
+
+```bash
+export OTEL_EXPORTER_OTLP_ENDPOINT=https://185003257558.collect.observeinc.com/v2/otel
+export OTEL_EXPORTER_OTLP_BEARER_TOKEN=<your-token-here>
+```
+
+The implementation automatically includes the required headers:
+- `Authorization: Bearer <token>` (when `OTEL_EXPORTER_OTLP_BEARER_TOKEN` is set)
+- `x-observe-target-package: Tracing|Metrics|Logs` (depending on the telemetry type)
 
 ## 🧪 Flask Application Example
 
 The [flask/otel.py](flask/otel.py) file demonstrates how to set up OpenTelemetry in a Flask application. It includes configurations for tracing, metrics, and logging, along with instrumentation for Flask and logging modules.
 
 ### Key Components
-- **Tracing**: Configured using TracerProvider and OTLPSpanExporter.
-- **Metrics**: Set up with MeterProvider and OTLPMetricExporter.
-- **Logging**: Implemented via LoggerProvider and OTLPLogExporter.
+- **Tracing**: Configured using TracerProvider and OTLP HTTP SpanExporter with bearer token authentication.
+- **Metrics**: Set up with MeterProvider and OTLP HTTP MetricExporter with required headers.
+- **Logging**: Implemented via LoggerProvider and OTLP HTTP LogExporter with proper authentication.
 - **Instrumentation**: Applied to Flask and logging using FlaskInstrumentor and LoggingInstrumentor.
+- **Authentication**: Automatic Bearer token authentication when `OTEL_EXPORTER_OTLP_BEARER_TOKEN` is provided.
+- **Headers**: Includes required `x-observe-target-package` headers for proper telemetry routing.
 
 The setup functions are modular, allowing for reuse and clarity.
 
@@ -71,24 +86,26 @@ The setup functions are modular, allowing for reuse and clarity.
 The [fastapi/otel.py](fastapi/otel.py) file illustrates the OpenTelemetry setup for a FastAPI application. The configuration is analogous to the Flask example, with adjustments for FastAPI's asynchronous nature.
 
 ### Key Components
-- **Tracing**: Utilizes TracerProvider and OTLPSpanExporter.
-- **Metrics**: Configured with MeterProvider and OTLPMetricExporter.
-- **Logging**: Set up using LoggerProvider and OTLPLogExporter.
+- **Tracing**: Utilizes TracerProvider and OTLP HTTP SpanExporter with bearer token authentication.
+- **Metrics**: Configured with MeterProvider and OTLP HTTP MetricExporter with required headers.
+- **Logging**: Set up using LoggerProvider and OTLP HTTP LogExporter with proper authentication.
 - **Instrumentation**: Applied to FastAPI and logging via FastAPIInstrumentor and LoggingInstrumentor.
+- **Authentication**: Automatic Bearer token authentication when `OTEL_EXPORTER_OTLP_BEARER_TOKEN` is provided.
+- **Headers**: Includes required `x-observe-target-package` headers for proper telemetry routing.
 
 The setup functions mirror those in the Flask example, ensuring consistency across different frameworks.
 
-## 🔌 gRPC Application Example
+## 🌐 HTTP Client Application Example
 
-The [grpc/otel.py](grpc/otel.py) file demonstrates OpenTelemetry setup for gRPC applications. The configuration follows the same patterns as Flask and FastAPI examples, with adjustments for gRPC's client-server architecture.
+The [http/otel.py](http/otel.py) file demonstrates OpenTelemetry setup for HTTP client applications. The configuration follows the same patterns as Flask and FastAPI examples, with adjustments for HTTP client libraries like requests and urllib3.
 
 ### Key Components
 - **Tracing**: Configured using TracerProvider and OTLPSpanExporter.
 - **Metrics**: Set up with MeterProvider and OTLPMetricExporter.
 - **Logging**: Implemented via LoggerProvider and OTLPLogExporter.
-- **Instrumentation**: Applied to gRPC client and server using GrpcInstrumentor.
+- **Instrumentation**: Applied to HTTP clients using RequestsInstrumentor and URLLib3Instrumentor.
 
-The setup functions maintain consistency with other framework examples while providing gRPC-specific instrumentation.
+The setup functions maintain consistency with other framework examples while providing HTTP client-specific instrumentation.
 
 ## ⚙️ Automatic Instrumentation
 
@@ -120,16 +137,16 @@ For FastAPI:
 opentelemetry-instrument uvicorn fastapi_app:app --host 0.0.0.0 --port 8000
 ```
 
-For gRPC:
+For HTTP clients:
 ```bash
-opentelemetry-instrument python grpc_server.py
+opentelemetry-instrument python http_client.py
 ```
 
 This approach automatically instruments supported libraries and frameworks, capturing telemetry data without manual setup.
 
 ## 📈 Exporting Telemetry Data
 
-Both examples are configured to export telemetry data using the OTLP gRPC protocol. Ensure that your OpenTelemetry Collector or backend is set up to receive data at the specified endpoint (`http://localhost:4317` by default).
+All examples are configured to export telemetry data using the OTLP HTTP protocol. Ensure that your OpenTelemetry Collector or backend is set up to receive data at the specified endpoint (`http://localhost:4318` by default).
 
 ## 🧪 Example Usage
 
@@ -174,30 +191,40 @@ def read_root():
 uvicorn fastapi_app:app --host 0.0.0.0 --port 8000
 ```
 
-### gRPC Application
+### HTTP Client Application
 ```python
-import grpc
-from concurrent import futures
-from grpc.otel import setup_instrumentation
+import requests
+from http.otel import setup_instrumentation
 
-# Setup OpenTelemetry for gRPC
-logger, tracer, meter = setup_instrumentation(service_name="my-grpc-service")
+# Setup OpenTelemetry for HTTP client
+logger, tracer, meter = setup_instrumentation(service_name="my-http-client")
 
-# Your gRPC service implementation
-class GreeterServicer(helloworld_pb2_grpc.GreeterServicer):
-    def SayHello(self, request, context):
-        logger.info("SayHello endpoint accessed")
-        return helloworld_pb2.HelloReply(message=f'Hello, {request.name}!')
+# ========================================
+# SAMPLE APPLICATION LOGIC BELOW
+# The following code is specific to this example application.
+# Replace this with your own business logic - the important part
+# is the setup_instrumentation() call above.
+# ========================================
 
-# Server setup
-server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
-helloworld_pb2_grpc.add_GreeterServicer_to_server(GreeterServicer(), server)
-server.add_insecure_port('[::]:50051')
-server.start()
+def make_api_calls():
+    urls = [
+        "https://httpbin.org/get",
+        "https://httpbin.org/json",
+        "https://api.github.com/users/octocat"
+    ]
+
+    for url in urls:
+        logger.info(f"Making request to {url}")
+        response = requests.get(url)
+        logger.info(f"Response: {response.status_code}")
+        print(f"Response from {url}: {response.status_code}")
+
+if __name__ == '__main__':
+    make_api_calls()
 ```
 
 ```bash
-python grpc_server.py
+python http_client.py
 ```
 
 ## 📚 References
@@ -205,6 +232,6 @@ python grpc_server.py
 - [OpenTelemetry Python Documentation](https://opentelemetry.io/docs/instrumentation/python/)
 - [OpenTelemetry Flask Instrumentation](https://opentelemetry-python-contrib.readthedocs.io/en/latest/instrumentation/flask/flask.html)
 - [OpenTelemetry FastAPI Instrumentation](https://opentelemetry-python-contrib.readthedocs.io/en/latest/instrumentation/fastapi/fastapi.html)
-- [OpenTelemetry gRPC Instrumentation](https://opentelemetry-python-contrib.readthedocs.io/en/latest/instrumentation/grpc/grpc.html)
+- [OpenTelemetry Requests Instrumentation](https://opentelemetry-python-contrib.readthedocs.io/en/latest/instrumentation/requests/requests.html)
 - [Automatic Instrumentation Guide](https://opentelemetry.io/docs/zero-code/python/)
 
