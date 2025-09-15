@@ -14,12 +14,10 @@ from opentelemetry.exporter.otlp.proto.http.trace_exporter import (
     OTLPSpanExporter,
 )
 
-
-from opentelemetry.instrumentation.grpc import (
-    GrpcInstrumentorClient,
-    GrpcInstrumentorServer,
-)
+from opentelemetry.instrumentation.requests import RequestsInstrumentor
+from opentelemetry.instrumentation.urllib3 import URLLib3Instrumentor
 from opentelemetry.instrumentation.logging import LoggingInstrumentor
+
 from opentelemetry.sdk._logs import LoggerProvider, LoggingHandler
 from opentelemetry.sdk._logs.export import BatchLogRecordProcessor
 from opentelemetry.sdk.metrics import MeterProvider
@@ -142,7 +140,7 @@ def setup_instrumentation(
     service_name: str,
 ) -> Tuple[logging.Logger, trace.Tracer, metrics.Meter]:
     """
-    Instrument a gRPC service with OpenTelemetry.
+    Instrument an HTTP service with OpenTelemetry.
 
     Args:
         service_name: Logical service name for resource attributes.
@@ -150,8 +148,9 @@ def setup_instrumentation(
     Returns:
         Tuple containing (logger, tracer, meter) instances.
     """
-    GrpcInstrumentorServer().instrument()
-    GrpcInstrumentorClient().instrument()
+    # Instrument HTTP libraries for automatic tracing
+    RequestsInstrumentor().instrument()
+    URLLib3Instrumentor().instrument()
 
     resource = Resource(attributes={SERVICE_NAME: service_name})
     otlp_endpoint = os.environ.get(
