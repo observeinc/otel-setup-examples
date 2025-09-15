@@ -199,7 +199,13 @@ from http.otel import setup_instrumentation
 # Setup OpenTelemetry for HTTP client
 logger, tracer, meter = setup_instrumentation(service_name="my-http-client")
 
-# Make HTTP requests (automatically instrumented)
+# ========================================
+# SAMPLE APPLICATION LOGIC BELOW
+# The following code is specific to this example application.
+# Replace this with your own business logic - the important part
+# is the setup_instrumentation() call above.
+# ========================================
+
 def make_api_calls():
     urls = [
         "https://httpbin.org/get",

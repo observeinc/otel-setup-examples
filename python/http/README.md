@@ -105,32 +105,26 @@ def make_api_call(url: str):
 # Create instruments once
 request_counter = meter.create_counter("http_requests_total")
 request_duration = meter.create_histogram("http_request_duration_seconds")
-response_size = meter.create_histogram("http_response_size_bytes")
 
 def handle_request(url: str):
     start_time = time.time()
-    
+
     # Increment counter
     request_counter.add(1, {
-        "method": "GET",
-        "endpoint": url
+        "method": "POST",
+        "endpoint": "/hello"
     })
-    
+
     # Make request
-    response = requests.get(url)
-    
-    # Record metrics
+    response = requests.post(url, json={"name": "World"})
+
+    # Record duration
     duration = time.time() - start_time
     request_duration.record(duration, {
-        "method": "GET",
-        "status_code": str(response.status_code)
+        "method": "POST",
+        "endpoint": "/hello"
     })
-    
-    response_size.record(len(response.content), {
-        "method": "GET",
-        "status_code": str(response.status_code)
-    })
-    
+
     return response
 ```
 
@@ -172,42 +166,30 @@ Complete example with OpenTelemetry instrumentation:
 
 **HTTP Client (client.py)**:
 ```python
-import time
 import requests
 from otel import setup_instrumentation
 
 # Setup OpenTelemetry
 logger, tracer, meter = setup_instrumentation("http-client-example")
 
-# Create metrics
-request_counter = meter.create_counter("http_requests_total")
+def run():
+    url = "http://localhost:8080/hello"
+    payload = {"name": "World"}
 
-def make_requests():
-    urls = [
-        "https://httpbin.org/get",
-        "https://httpbin.org/json",
-        "https://httpbin.org/delay/1"
-    ]
-    
-    for url in urls:
-        logger.info(f"Making request to {url}")
-        request_counter.add(1, {"url": url})
-        
-        try:
-            response = requests.get(url, timeout=10)
-            logger.info(f"Response from {url}: {response.status_code}")
-            print(f"Response from {url}: {response.status_code}")
-        except Exception as e:
-            logger.error(f"Error calling {url}: {e}")
+    logger.info("Sending hello request")
+    response = requests.post(url, json=payload)
+
+    logger.info(f"Received response: {response.json()}")
+    print(f"HTTP client received: {response.json()['message']}")
 
 if __name__ == '__main__':
-    make_requests()
+    run()
 ```
 
 **HTTP Server with Flask (server.py)**:
 ```python
 import time
-from flask import Flask, jsonify
+from flask import Flask, jsonify, request
 from otel import setup_instrumentation
 
 app = Flask(__name__)
@@ -216,58 +198,39 @@ app = Flask(__name__)
 logger, tracer, meter = setup_instrumentation("http-server-example")
 
 # Create metrics
-request_counter = meter.create_counter("http_server_requests_total")
+request_counter = meter.create_counter("http_requests_total")
 
-@app.route("/")
-def hello():
-    logger.info("Hello endpoint accessed")
-    request_counter.add(1, {"endpoint": "/", "method": "GET"})
-    return jsonify({"message": "Hello from OpenTelemetry HTTP server!"})
+@app.route("/hello", methods=['POST'])
+def say_hello():
+    data = request.get_json() or {}
+    name = data.get('name', 'World')
 
-@app.route("/slow")
-def slow():
-    logger.info("Slow endpoint accessed")
-    request_counter.add(1, {"endpoint": "/slow", "method": "GET"})
-    
-    # Simulate slow operation
-    time.sleep(2)
-    
-    return jsonify({"message": "This was a slow operation"})
+    logger.info(f"Received hello request for {name}")
+    request_counter.add(1, {"method": "SayHello"})
 
-@app.route("/error")
-def error():
-    logger.error("Error endpoint accessed")
-    request_counter.add(1, {"endpoint": "/error", "method": "GET"})
-    
-    # Simulate an error
-    raise Exception("This is a test error")
+    # Simulate some work
+    time.sleep(0.1)
+
+    return jsonify({
+        "message": f'Hello, {name}! From OpenTelemetry HTTP server.'
+    })
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080, debug=True)
 ```
 
-**Run the example applications**:
+**Run the application**:
 
 ```bash
-# Install dependencies
-pip install -r requirements.txt
-
 # Set endpoint (optional)
 export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4318"
 
-# Terminal 1 - Start server (optional)
-python example_server.py
+# Terminal 1 - Start server
+python server.py
 
 # Terminal 2 - Run client
-python example_client.py
+python client.py
 ```
-
-### Example Files
-
-This directory includes two complete example applications:
-
-- **[`example_client.py`](example_client.py)**: HTTP client that makes requests to various endpoints
-- **[`example_server.py`](example_server.py)**: Flask server that handles requests and makes external API calls
 
 The application automatically provides:
 - HTTP request/response tracing (both client and server)
