@@ -27,16 +27,20 @@ var (
 	appLogger *slog.Logger
 )
 
-// setupTracing configures OpenTelemetry tracing with OTLP HTTP exporter.
-func setupTracing(ctx context.Context, res *resource.Resource, otlpEndpoint, bearerToken string) (*sdktrace.TracerProvider, error) {
-	// Prepare headers
+// buildOTLPHeaders creates the standard headers for OTLP exporters.
+func buildOTLPHeaders(targetPackage, bearerToken string) map[string]string {
 	headers := map[string]string{
-		"x-observe-target-package": "Tracing",
+		"x-observe-target-package": targetPackage,
 	}
 	if bearerToken != "" {
 		headers["Authorization"] = "Bearer " + bearerToken
 	}
+	return headers
+}
 
+// setupTracing configures OpenTelemetry tracing with OTLP HTTP exporter.
+func setupTracing(ctx context.Context, res *resource.Resource, otlpEndpoint, bearerToken string) (*sdktrace.TracerProvider, error) {
+	headers := buildOTLPHeaders("Tracing", bearerToken)
 	traceExporter, err := otlptracehttp.New(ctx,
 		otlptracehttp.WithEndpoint(otlpEndpoint),
 		otlptracehttp.WithURLPath("/v1/traces"),
@@ -57,14 +61,7 @@ func setupTracing(ctx context.Context, res *resource.Resource, otlpEndpoint, bea
 
 // setupMetrics configures OpenTelemetry metrics with OTLP HTTP exporter.
 func setupMetrics(ctx context.Context, res *resource.Resource, otlpEndpoint, bearerToken string) (*sdkmetric.MeterProvider, error) {
-	// Prepare headers
-	headers := map[string]string{
-		"x-observe-target-package": "Metrics",
-	}
-	if bearerToken != "" {
-		headers["Authorization"] = "Bearer " + bearerToken
-	}
-
+	headers := buildOTLPHeaders("Metrics", bearerToken)
 	metricExporter, err := otlpmetrichttp.New(ctx,
 		otlpmetrichttp.WithEndpoint(otlpEndpoint),
 		otlpmetrichttp.WithURLPath("/v1/metrics"),
@@ -85,14 +82,7 @@ func setupMetrics(ctx context.Context, res *resource.Resource, otlpEndpoint, bea
 
 // setupLogging configures OpenTelemetry logging with OTLP HTTP exporter and structured logging.
 func setupLogging(ctx context.Context, res *resource.Resource, otlpEndpoint, bearerToken, serviceName string) (*sdklog.LoggerProvider, error) {
-	// Prepare headers
-	headers := map[string]string{
-		"x-observe-target-package": "Logs",
-	}
-	if bearerToken != "" {
-		headers["Authorization"] = "Bearer " + bearerToken
-	}
-
+	headers := buildOTLPHeaders("Logs", bearerToken)
 	logExporter, err := otlploghttp.New(ctx,
 		otlploghttp.WithEndpoint(otlpEndpoint),
 		otlploghttp.WithURLPath("/v1/logs"),
