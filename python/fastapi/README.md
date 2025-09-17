@@ -18,7 +18,7 @@ pip install \
   uvicorn==0.24.0 \
   opentelemetry-api>=1.30.0,<1.33.0 \
   opentelemetry-sdk>=1.30.0,<1.33.0 \
-  opentelemetry-exporter-otlp-proto-grpc>=1.30.0,<1.33.0 \
+  opentelemetry-exporter-otlp-proto-http>=1.30.0,<1.33.0 \
   opentelemetry-instrumentation-fastapi>=0.51b0,<=0.53b0 \
   opentelemetry-instrumentation-logging>=0.51b0,<=0.53b0
 ```
@@ -27,7 +27,7 @@ pip install \
 
 ## 🔧 Configuration
 
-The setup uses OTLP gRPC exporter with endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. Default: `http://localhost:4317`.
+The setup uses OTLP HTTP exporter with endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. Default: `http://localhost:4318`.
 
 ## 🧪 Setup
 
@@ -160,7 +160,7 @@ async def health_check():
 
 ```bash
 # Set endpoint (optional)
-export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4317"
+export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4318"
 
 # Start server
 uvicorn main:app --host 0.0.0.0 --port 8000
