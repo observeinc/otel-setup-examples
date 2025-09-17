@@ -227,6 +227,14 @@ if __name__ == '__main__':
 python http_client.py
 ```
 
+
+## 🛠️ Troubleshooting: Logs not appearing in Observe
+
+- Avoid resetting the root logger (e.g., using logging.basicConfig()), which can remove the OpenTelemetry logging handler
+- Ensure your application logger propagates to the root: `logger.propagate = True`
+- Attach custom formatters/handlers to your application logger; let logs bubble to the root where the OpenTelemetry handler is attached
+- If you previously called basicConfig, remove it or reconfigure logging to not override existing handlers
+
 ## 📚 References
 
 - [OpenTelemetry Python Documentation](https://opentelemetry.io/docs/instrumentation/python/)

@@ -128,6 +128,7 @@ def setup_logging(
     handler = LoggingHandler(
         level=logging.NOTSET, logger_provider=logger_provider
     )
+    # App loggers should propagate to root; avoid logging.basicConfig()
     logging.getLogger().addHandler(handler)
     logging.getLogger().setLevel(logging.INFO)
 
