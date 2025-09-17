@@ -33,10 +33,10 @@ This repository contains comprehensive OpenTelemetry setup examples for differen
   - Route-level instrumentation and error handler integration
   - Tested dependency versions: [`python/flask/requirements.txt`](python/flask/requirements.txt)
 
-- **gRPC**: [`python/grpc/README.md`](python/grpc/README.md)
-  - Client and server instrumentation for gRPC applications
+- **http**: [`python/http/README.md`](python/http/README.md)
+  - Client and server instrumentation for http applications
   - Protobuf integration and bidirectional streaming support
-  - Tested dependency versions: [`python/grpc/requirements.txt`](python/grpc/requirements.txt)
+  - Tested dependency versions: [`python/http/requirements.txt`](python/http/requirements.txt)
 
 ### 📘 TypeScript/Node.js
 

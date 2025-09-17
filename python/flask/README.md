@@ -24,7 +24,7 @@ pip install \
   flask==2.3.3 \
   opentelemetry-api>=1.30.0,<1.33.0 \
   opentelemetry-sdk>=1.30.0,<1.33.0 \
-  opentelemetry-exporter-otlp-proto-grpc>=1.30.0,<1.33.0 \
+  opentelemetry-exporter-otlp-proto-http>=1.30.0,<1.33.0 \
   opentelemetry-instrumentation-flask>=0.51b0,<=0.53b0 \
   opentelemetry-instrumentation-logging>=0.51b0,<=0.53b0
 ```
@@ -33,7 +33,7 @@ pip install \
 
 ## 🔧 Configuration
 
-The setup uses OTLP gRPC exporter with endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. Default: `http://localhost:4317`.
+The setup uses OTLP HTTP exporter with endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. Default: `http://localhost:4318`.
 
 ## 🧪 Setup
 
@@ -167,7 +167,7 @@ if __name__ == "__main__":
 
 ```bash
 # Set endpoint (optional)
-export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4317"
+export OTEL_EXPORTER_OTLP_ENDPOINT="http://localhost:4318"
 
 # Start server
 python app.py
