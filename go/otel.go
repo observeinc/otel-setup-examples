@@ -42,7 +42,7 @@ func buildOTLPHeaders(targetPackage, bearerToken string) map[string]string {
 func setupTracing(ctx context.Context, res *resource.Resource, otlpEndpoint, bearerToken string) (*sdktrace.TracerProvider, error) {
 	headers := buildOTLPHeaders("Tracing", bearerToken)
 	traceExporter, err := otlptracehttp.New(ctx,
-		otlptracehttp.WithEndpoint(otlpEndpoint),
+		otlptracehttp.WithEndpointUrl(otlpEndpoint),
 		otlptracehttp.WithURLPath("/v1/traces"),
 		otlptracehttp.WithHeaders(headers),
 	)
@@ -63,7 +63,7 @@ func setupTracing(ctx context.Context, res *resource.Resource, otlpEndpoint, bea
 func setupMetrics(ctx context.Context, res *resource.Resource, otlpEndpoint, bearerToken string) (*sdkmetric.MeterProvider, error) {
 	headers := buildOTLPHeaders("Metrics", bearerToken)
 	metricExporter, err := otlpmetrichttp.New(ctx,
-		otlpmetrichttp.WithEndpoint(otlpEndpoint),
+		otlpmetrichttp.WithEndpointUrl(otlpEndpoint),
 		otlpmetrichttp.WithURLPath("/v1/metrics"),
 		otlpmetrichttp.WithHeaders(headers),
 	)
@@ -84,7 +84,7 @@ func setupMetrics(ctx context.Context, res *resource.Resource, otlpEndpoint, bea
 func setupLogging(ctx context.Context, res *resource.Resource, otlpEndpoint, bearerToken, serviceName string) (*sdklog.LoggerProvider, error) {
 	headers := buildOTLPHeaders("Logs", bearerToken)
 	logExporter, err := otlploghttp.New(ctx,
-		otlploghttp.WithEndpoint(otlpEndpoint),
+		otlploghttp.WithEndpointUrl(otlpEndpoint),
 		otlploghttp.WithURLPath("/v1/logs"),
 		otlploghttp.WithHeaders(headers),
 	)
