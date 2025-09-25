@@ -109,9 +109,3 @@ const otlpEndpointBearerToken =
 ```
 
 **IMPORTANT**: Client-side environment variables in Next.js must be prefixed with `NEXT_PUBLIC_` to be accessible in the browser.
-
-## References
-
-- [Next.js OpenTelemetry Documentation](https://nextjs.org/docs/app/guides/open-telemetry)
-- [OpenTelemetry JavaScript Documentation](https://opentelemetry.io/docs/instrumentation/js/)
-- [Generic TypeScript Setup](../README.md)

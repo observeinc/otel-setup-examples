@@ -1,61 +1,53 @@
-# OpenTelemetry Setup Examples Directory
+# General OpenTelemetry Instrumentation Instructions
 
-This repository contains comprehensive OpenTelemetry setup examples for different programming languages and frameworks. This README serves as a directory for LLMs to quickly locate and understand the available documentation and examples.
+### Tracing Implementation
 
-## 📚 Available Documentation by Language
+- **Use auto-instrumentation libraries first**: Prefer framework-specific middleware and wrappers over manual span creation
+- Create spans for all service boundaries: HTTP handlers, gRPC methods, database operations, external API calls
+- Use built-in instrumentation (e.g., HTTP middleware, database drivers) when available
+- Only create manual spans when auto-instrumentation isn't available
+- Apply OpenTelemetry semantic conventions for span attributes
+- Record key attributes: request parameters, user IDs, error messages, response codes
 
-### 🐹 Go
+### Logging Integration
 
-- **Main Documentation**: [`go/README.md`](go/README.md)
-  - Generic OpenTelemetry setup that works with any Go HTTP framework
-  - Comprehensive examples for traces, metrics, and logs using OTLP exporters
-  - HTTP instrumentation compatible with standard library and popular frameworks
-  - Structured logging with slog integration
-  - Tested dependency versions in [`go/go.mod`](go/go.mod)
+- Do not replace/reset the root logger. Python: avoid logging.basicConfig(); attach handlers to your app logger and keep propagate=True.
+- Ensure logs flow through the OpenTelemetry logging handler/provider configured in the example (do not bypass it).
+- Inject trace_id and span_id into logs for correlation (use the example’s logging instrumentation).
 
-### 🐍 Python
+### Metrics Collection
 
-- **Main Documentation**: [`python/README.md`](python/README.md)
-  - Overview of Python OpenTelemetry instrumentation approaches
-  - Both manual and automatic instrumentation methods
-  - Comprehensive coverage of traces, metrics, and logs using OTLP exporters
-  - Framework-agnostic patterns and best practices
+- Implement key application metrics: request latency, throughput, error rates, resource usage
+- Use OpenTelemetry meter provider with Prometheus exporter
+- Apply consistent metric naming and avoid high cardinality labels
+- Monitor critical business operations and system health
 
-#### Python Framework-Specific Documentation
+## Implementation Guidelines
 
-- **FastAPI**: [`python/fastapi/README.md`](python/fastapi/README.md)
-  - Async/await compatible OpenTelemetry setup for FastAPI applications
-  - ASGI middleware integration and background task instrumentation
-  - Tested dependency versions: [`python/fastapi/requirements.txt`](python/fastapi/requirements.txt)
+### Minimal Code Changes Philosophy
 
-- **Flask**: [`python/flask/README.md`](python/flask/README.md)
-  - WSGI-based OpenTelemetry setup for Flask applications
-  - Route-level instrumentation and error handler integration
-  - Tested dependency versions: [`python/flask/requirements.txt`](python/flask/requirements.txt)
+- **Preserve original code structure**: Do not transform simple, working code into complex patterns
+- **Avoid unnecessary architectural changes**: Don't introduce servers, goroutines/async, signal handling, or graceful shutdown unless they already exist
+- **Use built-in instrumentation libraries**: Prefer existing middleware/wrappers (e.g., auto-instrumenting HTTP handlers) over manual span creation
+- **One-line additions where possible**: Aim to add observability with minimal lines of code per function
+- **Favor composition over modification**: Wrap existing handlers/functions rather than rewriting their internals
 
-- **http**: [`python/http/README.md`](python/http/README.md)
-  - Client and server instrumentation for http applications
-  - Protobuf integration and bidirectional streaming support
-  - Tested dependency versions: [`python/http/requirements.txt`](python/http/requirements.txt)
+### Code Quality
 
-### 📘 TypeScript/Node.js
+- Keep instrumentation code minimal and non-intrusive
+- Abstract setup logic into clean, reusable functions
+- Minimize the amount of new code added to existing functions
+- Ensure instrumentation overhead is negligible
+- **Preserve simplicity**: If the original code is simple and direct, keep it that way
 
-- **Main Documentation**: [`typescript/README.md`](typescript/README.md)
-  - Generic setup using NodeSDK with automatic instrumentation
-  - Works with Express, Fastify, Koa, and other Node.js frameworks
-  - Separate server and client configurations
-  - Tested dependency versions:
-    - Server: [`typescript/server/package.json`](typescript/server/package.json)
-    - Client: [`typescript/client/package.json`](typescript/client/package.json)
+### Context Propagation
 
-#### TypeScript Framework-Specific Documentation
+- Attach context to all spans, logs, and metrics
+- Ensure trace context flows through all service calls
+- Use proper context cancellation and timeout handling
 
-- **Next.js**: [`typescript/nextjs/README.md`](typescript/nextjs/README.md)
-  - Complete setup guide for Next.js applications (App Router and Pages Router)
-  - Built-in OpenTelemetry support with @vercel/otel and manual configuration
-  - Client-side and server-side instrumentation
-  - Default spans and custom telemetry examples
-- **TanStack Start**: [`typescript/tanstack-start/README.md`](typescript/tanstack-start/README.md)
-  - Specific setup instructions for TanStack Start applications
-  - Server and client entry point configurations
-  - Environment variable handling for client-side telemetry
+### Error Handling
+
+- Instrument error paths without changing error semantics
+- Record errors in spans with appropriate status codes
+- Log errors with full context and trace correlation
