@@ -5,6 +5,17 @@ This repository offers practical examples for instrumenting TypeScript/Node.js a
 Whenever performing command line operations using `npm`, `pnpm`, or `yarn`, use the package manager that the repository prefers.
 Can identify the preferred package manager by looking at the `package.json` file or the `*-lock.json` file.
 
+**Version Compatibility Notes**:
+
+- Use recent versions of OpenTelemetry packages (v1.9.0+ for API, v0.52.0+ for SDK packages).
+
+**Critical Import Rules**:
+
+- ❌ **DO NOT** import `logs` from `@opentelemetry/api` (not available in versions 1.7.0 and earlier)
+- ✅ **DO** use `loggerProvider.getLogger()` directly from your setup module
+- ❌ **DO NOT** use `trace.SpanStatusCode` or `trace.active()`
+- ✅ **DO** import `SpanStatusCode` and `context` directly from `@opentelemetry/api`
+
 ## 🔧 Configuration Overview
 
 The example utilizes the OTLP HTTP exporter by default, with the endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. If not set, it defaults to `http://localhost:4318`.
