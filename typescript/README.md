@@ -5,60 +5,6 @@ This repository offers practical examples for instrumenting TypeScript/Node.js a
 Whenever performing command line operations using `npm`, `pnpm`, or `yarn`, use the package manager that the repository prefers.
 Can identify the preferred package manager by looking at the `package.json` file or the `*-lock.json` file.
 
-## 📦 Dependencies
-
-Install all dependencies using the preferred package manager of the repository.
-For server side, install the following dependencies:
-
-- "@opentelemetry/api",
-- "@opentelemetry/api-logs",
-- "@opentelemetry/auto-instrumentations-node",
-- "@opentelemetry/exporter-logs-otlp-http",
-- "@opentelemetry/exporter-metrics-otlp-proto",
-- "@opentelemetry/exporter-trace-otlp-http",
-- "@opentelemetry/resources",
-- "@opentelemetry/sdk-logs",
-- "@opentelemetry/sdk-metrics",
-- "@opentelemetry/sdk-node",
-- "@opentelemetry/semantic-conventions",
-
-  For client side, install the following dependencies.
-
-- "@opentelemetry/api",
-- "@opentelemetry/api-logs",
-- "@opentelemetry/exporter-logs-otlp-http",
-- "@opentelemetry/exporter-trace-otlp-http",
-- "@opentelemetry/instrumentation",
-- "@opentelemetry/instrumentation-document-load",
-- "@opentelemetry/instrumentation-fetch",
-- "@opentelemetry/instrumentation-xml-http-request",
-- "@opentelemetry/resources",
-- "@opentelemetry/sdk-logs",
-- "@opentelemetry/sdk-trace-web",
-- "@opentelemetry/semantic-conventions",
-
-Always install these packages using the preferred package manager of the repository.
-After installing all dependencies, run `{preferred package manager} install` one last time.
-
-**Version Compatibility Notes**:
-
-- Use recent versions of OpenTelemetry packages (v1.9.0+ for API, v0.52.0+ for SDK packages).
-
-**Critical Import Rules**:
-
-- ❌ **DO NOT** import `logs` from `@opentelemetry/api` (not available in versions 1.7.0 and earlier)
-- ✅ **DO** use `loggerProvider.getLogger()` directly from your setup module
-- ❌ **DO NOT** use `trace.SpanStatusCode` or `trace.active()`
-- ✅ **DO** import `SpanStatusCode` and `context` directly from `@opentelemetry/api`
-
-For development, you'll also need:
-
-```bash
-npm install --save-dev \ # or `pnpm add -D` or `yarn add -D`
-  typescript \
-  @types/node
-```
-
 ## 🔧 Configuration Overview
 
 The example utilizes the OTLP HTTP exporter by default, with the endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. If not set, it defaults to `http://localhost:4318`.
