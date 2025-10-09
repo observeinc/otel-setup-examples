@@ -1,11 +1,8 @@
 ### OpenTelemetry TypeScript Dependencies
 
-Make sure to install all dependencies using appropriate package manager commands
-i.e `pnpm add`, `yarn add`, or `npm install`
-
 #### Development Dependencies
 
-**_Always install these development dependencies prior to installing any other dependencies_**.
+Install these dependencies prior to installing any other dependencies.
 Make sure to install with the appropriate flag to save them as dev dependencies
 i.e `pnpm add -D`, `yarn add -D`, or `npm install --save-dev`
 
