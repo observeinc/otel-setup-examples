@@ -4,7 +4,6 @@
 
 Install these dependencies prior to installing any other dependencies.
 Make sure to install with the appropriate flag to save them as dev dependencies
-i.e `pnpm add -D`, `yarn add -D`, or `npm install --save-dev`
 
 - "typescript"
 - "@types/node"
