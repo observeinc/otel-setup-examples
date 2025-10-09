@@ -26,6 +26,8 @@
 
 ### Minimal Code Changes Philosophy
 
+- **Preserve original code functionality**: Do not change the behavior or output of the application
+- **Preserve original code instrumentation**: You can add additional logging, metrics, and tracing but do not remove or break existing logging, metrics, and tracing. Favor adding an additional exporter rather than replacing an existing one.
 - **Preserve original code structure**: Do not transform simple, working code into complex patterns
 - **Avoid unnecessary architectural changes**: Don't introduce servers, goroutines/async, signal handling, or graceful shutdown unless they already exist
 - **Use built-in instrumentation libraries**: Prefer existing middleware/wrappers (e.g., auto-instrumenting HTTP handlers) over manual span creation
