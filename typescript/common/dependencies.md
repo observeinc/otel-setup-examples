@@ -1,6 +1,11 @@
+## OpenTelemetry TypeScript Dependencies
+
+Make sure to install all dependencies using appropriate package manager commands
+i.e `pnpm add`, `yarn add`, or `npm install`
+
 ### Development Dependencies
 
-**_Always install these first_**.
+**_Always install these development dependencies prior to installing any other dependencies_**.
 Make sure to install with the appropriate flag to save them as dev dependencies
 i.e `pnpm add -D`, `yarn add -D`, or `npm install --save-dev`
 
@@ -9,9 +14,7 @@ i.e `pnpm add -D`, `yarn add -D`, or `npm install --save-dev`
 
 ### Server Side Dependencies
 
-Install these for server side instrumentation.
-Make sure to install them with the appropriate package manager commands
-i.e `pnpm add`, `yarn add`, or `npm install`
+Install these dependencies when instrumenting a server side application.
 
 - "@opentelemetry/api"
 - "@opentelemetry/api-logs"
@@ -27,9 +30,7 @@ i.e `pnpm add`, `yarn add`, or `npm install`
 
 ### Client Side Dependencies
 
-Install these for client side instrumentation.
-Make sure to install them with the appropriate package manager commands
-i.e `pnpm add`, `yarn add`, or `npm install`
+Install these dependencies when instrumenting a client side application.
 
 - "@opentelemetry/api"
 - "@opentelemetry/api-logs"
