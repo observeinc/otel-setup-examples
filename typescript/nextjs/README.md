@@ -20,7 +20,7 @@ Install the additional packages `import-in-the-middle` and `require-in-the-middl
 
 ### Create OpenTelemetry Configuration Files
 
-Copy the `otel-server.ts` and `otel-client.ts` files from the [`server/otel-server.ts`](../server/otel-server.ts) and [`client/otel-client.ts`](../client/otel-client.ts) files in this repository to the root of your Next.js project.
+Copy the `otel-server.ts` and `otel-client.ts` example files to the root of your Next.js project.
 
 ### Create instrumentation.ts
 
