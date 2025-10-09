@@ -1,7 +1,7 @@
 // Development dependencies: Always install these first. Make sure to install with the appropriate flag to save them as dev dependencies i.e `pnpm add -D`, `yarn add -D`, or `npm install --save-dev`
 export const devDependencies = ["typescript", "@types/node"];
 
-// Server side dependencies: Install these for server side instrumentation
+// Server side dependencies: Install these for server side instrumentation. Make sure to install them with the appropriate package manager commands i.e `pnpm add`, `yarn add`, or `npm install`
 export const serverSideDependencies = [
   "@opentelemetry/api",
   "@opentelemetry/api-logs",
@@ -16,7 +16,7 @@ export const serverSideDependencies = [
   "@opentelemetry/semantic-conventions",
 ];
 
-// Client side dependencies: Install these for client side instrumentation
+// Client side dependencies: Install these for client side instrumentation. Make sure to install them with the appropriate package manager commands i.e `pnpm add`, `yarn add`, or `npm install`
 export const clientSideDependencies = [
   "@opentelemetry/api",
   "@opentelemetry/api-logs",
