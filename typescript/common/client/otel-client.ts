@@ -1,7 +1,5 @@
 import { logs, SeverityNumber } from "@opentelemetry/api-logs";
-import { metrics } from "@opentelemetry/api";
 import { OTLPLogExporter } from "@opentelemetry/exporter-logs-otlp-http";
-import { OTLPMetricExporter } from "@opentelemetry/exporter-metrics-otlp-proto";
 import { OTLPTraceExporter } from "@opentelemetry/exporter-trace-otlp-http";
 import { registerInstrumentations } from "@opentelemetry/instrumentation";
 import { DocumentLoadInstrumentation } from "@opentelemetry/instrumentation-document-load";
@@ -12,7 +10,6 @@ import {
   BatchLogRecordProcessor,
   LoggerProvider,
 } from "@opentelemetry/sdk-logs";
-import { PeriodicExportingMetricReader, MeterProvider } from "@opentelemetry/sdk-metrics";
 import {
   SimpleSpanProcessor,
   WebTracerProvider,
@@ -53,23 +50,6 @@ const provider = new WebTracerProvider({
   ],
 });
 
-// Initialize Meter Provider
-const meterProvider = new MeterProvider({
-  resource: resource,
-  readers: [
-    new PeriodicExportingMetricReader({
-      exporter: new OTLPMetricExporter({
-        url: `${otlpEndpoint}/v1/metrics`,
-        headers: {
-          ...authHeader,
-          "x-observe-target-package": "Metrics",
-          "Content-Type": "application/x-protobuf",
-        },
-      }),
-    }),
-  ],
-});
-
 // Initialize Logger Provider
 const loggerProvider = new LoggerProvider({
   resource: resource,
@@ -103,7 +83,6 @@ export function initOtel() {
     });
 
     logs.setGlobalLoggerProvider(loggerProvider);
-    metrics.setGlobalMeterProvider(meterProvider);
     provider.register({});
 
     const logger = logs.getLogger(serviceName);
