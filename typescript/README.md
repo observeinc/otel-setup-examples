@@ -1,47 +1,13 @@
-# OpenTelemetry TypeScript Setup Examples <!-- omit from toc -->
+# OpenTelemetry TypeScript Setup Examples
 
-This repository offers practical examples for instrumenting TypeScript/Node.js applications with OpenTelemetry (OTel). It demonstrates automatic instrumentation using the NodeSDK, which works with any Node.js HTTP framework (Express, Fastify, Koa, etc.), showing how to collect and export traces, metrics, and logs using OTLP exporters.
+This document offers practical examples for instrumenting TypeScript/Node.js applications with OpenTelemetry (OTel). It demonstrates automatic instrumentation using the NodeSDK, which works with any Node.js HTTP framework (Express, Fastify, Koa, etc.), showing how to collect and export traces, metrics, and logs using OTLP exporters.
 
 Whenever performing command line operations using `npm`, `pnpm`, or `yarn`, use the package manager that the repository prefers.
 Can identify the preferred package manager by looking at the `package.json` file or the `*-lock.json` file.
 
-- [📦 Dependencies](#-dependencies)
-- [🔧 Configuration Overview](#-configuration-overview)
-- [🧪 Generic OpenTelemetry Setup](#-generic-opentelemetry-setup)
-  - [Key Components](#key-components)
-  - [Common API Patterns](#common-api-patterns)
-- [🔧 Common Compilation Error Fixes](#-common-compilation-error-fixes)
-  - [Error: `Module has no exported member 'logs'`](#error-module-has-no-exported-member-logs)
-  - [Error: `Property 'SpanStatusCode' does not exist on type 'TraceAPI'`](#error-property-spanstatuscode-does-not-exist-on-type-traceapi)
-  - [Error: `Property 'active' does not exist on type 'TraceAPI'`](#error-property-active-does-not-exist-on-type-traceapi)
-- [📋 Recommended Code Patterns](#-recommended-code-patterns)
-- [⚙️ Automatic Instrumentation](#️-automatic-instrumentation)
-- [📈 Exporting Telemetry Data](#-exporting-telemetry-data)
-- [🧪 Example Usage](#-example-usage)
-  - [HTTP Server Application](#http-server-application)
-- [🚀 Serverless Functions Adaptations](#-serverless-functions-adaptations)
-  - [1. Export NodeSDK for serverless forceFlush](#1-export-nodesdk-for-serverless-forceflush)
-  - [2. Optimize Batch Processing for Serverless](#2-optimize-batch-processing-for-serverless)
-  - [3. Serverless Function Handler Pattern](#3-serverless-function-handler-pattern)
-  - [4. Dependencies for Serverless Functions](#4-dependencies-for-serverless-functions)
-- [📚 References](#-references)
-  - [Server](#server)
-  - [Client](#client)
-
-## 📦 Dependencies
-
-Install all dependencies using the preferred package manager of the repository.
-For server side, install the dependencies from the [`server/package.json`](server/package.json) file.
-For client side, install the dependencies from the [`client/package.json`](client/package.json) file.
-
-Always install these packages using the preferred package manager of the repository.
-After installing all dependencies, run `{preferred package manager} install` one last time.
-
 **Version Compatibility Notes**:
 
 - Use recent versions of OpenTelemetry packages (v1.9.0+ for API, v0.52.0+ for SDK packages).
-- **For working, tested versions**: Check the project's [`server/package.json`](server/package.json) and [`client/package.json`](client/package.json) files which contains a set of compatible versions that have been verified to work together. You can add both the client and server dependencies to your project.
-- Some package combinations may require specific version compatibility - check the [OpenTelemetry JavaScript compatibility matrix](https://github.com/open-telemetry/opentelemetry-js#supported-runtimes) if you encounter version conflicts.
 
 **Critical Import Rules**:
 
@@ -50,31 +16,9 @@ After installing all dependencies, run `{preferred package manager} install` one
 - ❌ **DO NOT** use `trace.SpanStatusCode` or `trace.active()`
 - ✅ **DO** import `SpanStatusCode` and `context` directly from `@opentelemetry/api`
 
-For development, you'll also need:
-
-```bash
-npm install --save-dev \ # or `pnpm add -D` or `yarn add -D`
-  typescript \
-  @types/node
-```
-
 ## 🔧 Configuration Overview
 
 The example utilizes the OTLP HTTP exporter by default, with the endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. If not set, it defaults to `http://localhost:4318`.
-
-## 🧪 Generic OpenTelemetry Setup
-
-The [server/otel-server.ts](server/otel-server.ts) file demonstrates how to set up OpenTelemetry in any Node.js application. It uses the NodeSDK with automatic instrumentation, which works with Express, Fastify, Koa, and other Node.js frameworks without framework-specific configuration.
-The [client/otel-client.ts](client/otel-client.ts) file demonstrates how to set up OpenTelemetry in any TypeScript web client. It uses the WebTracerProvider with automatic instrumentation for browser-based applications.
-
-For server side applications, add a similar file as `otel-server.ts`
-For client side applications, add a similar file as `otel-client.ts`
-Or add both if needed for fullstack applications.
-
-For framework specific details, refer to the framework-specific documentation:
-
-- Next.js: [`nextjs/README.md`](nextjs/README.md)
-- Tanstack Start: [`tanstack-start/README.md`](tanstack-start/README.md)
 
 ### Key Components
 
@@ -270,7 +214,6 @@ For serverless functions (e.g., Netlify Functions, AWS Lambda, Vercel Functions)
 
 Ensure your otel module also exports `sdk` (NodeSDK) as in the server example; the handler uses it for `forceFlush()`.
 
-
 ### 2. Optimize Batch Processing for Serverless
 
 ```typescript
@@ -317,10 +260,10 @@ export OTEL_BSP_EXPORT_TIMEOUT=2000      # don’t wait too long (ms)
 ### 3. Serverless Function Handler Pattern
 
 Why this is needed vs. the regular server otel:
+
 - Regular server examples show SDK init for long-lived processes (e.g., Express).
 - Serverless invocations are short-lived; you often need a root span per invocation and must flush before returning to avoid dropped telemetry.
 - This pattern shows how to create a per-invocation span, emit structured logs, and force-flush telemetry reliably in serverless runtimes.
-
 
 ```typescript
 import { trace, SpanStatusCode } from "@opentelemetry/api";
@@ -344,7 +287,10 @@ export async function handler(event: any, context: any) {
         severityNumber: SeverityNumber.INFO,
         severityText: "INFO",
         body: "Function executed successfully",
-        attributes: { requestId: context?.awsRequestId, duration: Date.now() - startTime },
+        attributes: {
+          requestId: context?.awsRequestId,
+          duration: Date.now() - startTime,
+        },
       });
 
       span.setStatus({ code: SpanStatusCode.OK });
@@ -360,7 +306,10 @@ export async function handler(event: any, context: any) {
         attributes: { error: error?.message, requestId: context?.awsRequestId },
       });
 
-      return { statusCode: 500, body: JSON.stringify({ error: "Internal Server Error" }) };
+      return {
+        statusCode: 500,
+        body: JSON.stringify({ error: "Internal Server Error" }),
+      };
     } finally {
       span.end();
       await sdk.forceFlush().catch(() => {}); // Important for serverless
@@ -372,23 +321,6 @@ export async function handler(event: any, context: any) {
 ### 4. Dependencies for Serverless Functions
 
 Netlify-specific packages:
+
 - `@netlify/functions` (tested: `^4.2.5`)
 - `netlify-cli` (devDependency; tested: `^22.4.0`) for local development via `netlify dev`
-
-For the rest of the OpenTelemetry dependencies, refer to the server/package.json in this directory for the canonical list and versions:
-- [`server/package.json`](server/package.json)
-
-## 📚 References
-
-- [OpenTelemetry JavaScript Documentation](https://opentelemetry.io/docs/instrumentation/js/)
-
-### Server
-
-- [OpenTelemetry Node.js SDK](https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-node)
-- [OpenTelemetry Auto Instrumentations](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/metapackages/auto-instrumentations-node)
-- [Express.js OpenTelemetry Instrumentation](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-express)
-- [Fastify OpenTelemetry Instrumentation](https://github.com/open-telemetry/opentelemetry-js-contrib/tree/main/plugins/node/opentelemetry-instrumentation-fastify)
-
-### Client
-
-- [OpenTelemetry Web Tracer Provider](https://github.com/open-telemetry/opentelemetry-js/tree/main/packages/opentelemetry-sdk-trace-web)
