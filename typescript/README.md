@@ -1,4 +1,4 @@
-# OpenTelemetry TypeScript Setup Examples <!-- omit from toc -->
+# OpenTelemetry TypeScript Setup Examples
 
 This document offers practical examples for instrumenting TypeScript/Node.js applications with OpenTelemetry (OTel). It demonstrates automatic instrumentation using the NodeSDK, which works with any Node.js HTTP framework (Express, Fastify, Koa, etc.), showing how to collect and export traces, metrics, and logs using OTLP exporters.
 
