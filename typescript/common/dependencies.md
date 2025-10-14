@@ -1,13 +1,3 @@
-### OpenTelemetry TypeScript Dependencies
-
-#### Development Dependencies
-
-Install these dependencies prior to installing any other dependencies.
-Make sure to install with the appropriate flag to save them as dev dependencies
-
-- "typescript"
-- "@types/node"
-
 #### Server Side Dependencies
 
 Install these dependencies when instrumenting a server side application.
