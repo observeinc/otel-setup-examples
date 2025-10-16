@@ -58,19 +58,16 @@ Set up browser instrumentation for client-side telemetry in Next.js.
 
 ### Initialize Client-Side OpenTelemetry
 
-Add client-side initialization in your root layout or `_app.tsx`:
+Create a `otel-client-init.ts` file and pick a reasonable location for it in your Next.js project. It is recommended to
+place it in `components/providers/` folder but if that folder doesn't exist use your best judgement. Populate the file
+with the following content:
 
 ```typescript
-// app/layout.tsx (App Router) or pages/_app.tsx (Pages Router)
-"use client"; // Only needed in App Router
+"use client";
 
 import { useEffect } from "react";
 
-export default function RootLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function OtelClientInit() {
   useEffect(() => {
     if (typeof window !== "undefined") {
       // Import and initialize client-side OpenTelemetry
@@ -80,32 +77,9 @@ export default function RootLayout({
     }
   }, []);
 
-  return (
-    <html lang="en">
-      <body>{children}</body>
-    </html>
-  );
+  return null; // This component doesn't render anything
 }
 ```
 
-### Configure Environment Variables
-
-Set up Next.js public environment variables for client-side telemetry:
-
-```bash
-# .env.local
-NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:4318
-NEXT_PUBLIC_OTEL_EXPORTER_OTLP_BEARER_TOKEN=your-token-here
-```
-
-Update your `otel-client.ts` to use Next.js environment variables:
-
-```typescript
-const otlpEndpoint =
-  process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT ??
-  "http://localhost:4318";
-const otlpEndpointBearerToken =
-  process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_BEARER_TOKEN;
-```
-
-**IMPORTANT**: Client-side environment variables in Next.js must be prefixed with `NEXT_PUBLIC_` to be accessible in the browser.
+Make sure to include this OtelClientInit component in the root layout file. This is the `app/layout.tsx` file if you are
+using App Router or the `pages/_app.tsx` file if you are using Pages Router.
