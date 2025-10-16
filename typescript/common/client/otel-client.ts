@@ -34,7 +34,7 @@ const otlpEndpointBearerToken = process.env.OTEL_EXPORTER_OTLP_BEARER_TOKEN;
 
 const authHeader = otlpEndpointBearerToken
   ? { Authorization: `Bearer ${otlpEndpointBearerToken}` }
-  : null;
+  : {};
 
 // Create resource
 const resource = resourceFromAttributes({
