@@ -10,6 +10,7 @@ import {
 } from "@opentelemetry/sdk-logs";
 import { PeriodicExportingMetricReader } from "@opentelemetry/sdk-metrics";
 import { NodeSDK } from "@opentelemetry/sdk-node";
+import { BatchSpanProcessor } from "@opentelemetry/sdk-trace-node";
 import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 
 // Configuration
@@ -31,29 +32,42 @@ const resource = resourceFromAttributes({
 // Initialize OpenTelemetry SDK
 export const sdk = new NodeSDK({
   resource,
-  traceExporter: new OTLPTraceExporter({
-    url: `${otlpEndpoint}/v1/traces`,
-    headers: {
-      ...authHeader,
-      "x-observe-target-package": "Tracing",
-    },
-  }),
-  metricReader: new PeriodicExportingMetricReader({
-    exporter: new OTLPMetricExporter({
-      url: `${otlpEndpoint}/v1/metrics`,
-      headers: {
-        ...authHeader,
-        "x-observe-target-package": "Metrics",
-        "Content-Type": "application/x-protobuf",
-      },
+  // If existing otel instrumentation already has a span processor, add the following span processor and
+  // trace exporter to their existing spanProcessors array.
+  spanProcessors: [
+    new BatchSpanProcessor(
+      new OTLPTraceExporter({
+        url: `${otlpEndpoint}/v1/traces`,
+        headers: {
+          ...authHeader,
+          "x-observe-target-package": "Tracing",
+        },
+      })
+    ),
+  ],
+  // If existing otel instrumentation already has a metric reader, add the following metric reader to their existing
+  // metricReaders array. If they use the deprecated metricReader field instead of metricReaders, replace it with the
+  // metricReaders field and add both readers to the array.
+  metricReaders: [
+    new PeriodicExportingMetricReader({
+      exporter: new OTLPMetricExporter({
+        url: `${otlpEndpoint}/v1/metrics`,
+        headers: {
+          ...authHeader,
+          "x-observe-target-package": "Metrics",
+          "Content-Type": "application/x-protobuf",
+        },
+      }),
     }),
-  }),
+  ],
   instrumentations: [getNodeAutoInstrumentations()],
 });
 
 // Initialize Logger Provider
 const loggerProvider = new LoggerProvider({
   resource,
+  // If existing otel instrumentation already has a logger provider with a log processor, add the following log
+  // processor to their existing processors array.
   processors: [
     new BatchLogRecordProcessor(
       new OTLPLogExporter({

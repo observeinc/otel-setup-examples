@@ -44,6 +44,8 @@ const resource = resourceFromAttributes({
 const provider = new WebTracerProvider({
   resource,
   spanProcessors: [
+    // If existing otel instrumentation already has a span processor, add the following span processor and
+    // trace exporter to their existing spanProcessors array.
     new SimpleSpanProcessor(
       new OTLPTraceExporter({
         url: `${otlpEndpoint}/v1/traces`,
@@ -60,6 +62,9 @@ const provider = new WebTracerProvider({
 const meterProvider = new MeterProvider({
   resource,
   readers: [
+    // If existing otel instrumentation already has a metric reader, add the following metric reader to their existing
+    // metricReaders array. If they use the deprecated metricReader field instead of metricReaders, replace it with the
+    // metricReaders field and add both readers to the array.
     new PeriodicExportingMetricReader({
       exporter: new OTLPMetricExporter({
         url: `${otlpEndpoint}/v1/metrics`,
@@ -77,6 +82,8 @@ const meterProvider = new MeterProvider({
 const loggerProvider = new LoggerProvider({
   resource,
   processors: [
+    // If existing otel instrumentation already has a logger provider with a log processor, add the following log
+    // processor to their existing processors array.
     new BatchLogRecordProcessor(
       new OTLPLogExporter({
         url: `${otlpEndpoint}/v1/logs`,
