@@ -16,6 +16,18 @@ Can identify the preferred package manager by looking at the `package.json` file
 - ❌ **DO NOT** use `trace.SpanStatusCode` or `trace.active()`
 - ✅ **DO** import `SpanStatusCode` and `context` directly from `@opentelemetry/api`
 
+**Critical Implementation Rules**
+
+- If existing otel instrumentation already has a logger provider with a log processor, add the appropriate log processor
+  to their existing processors array as explained in the client/server example files.
+
+- If existing otel instrumentation already has a span processor, add the appropriate span processor and
+  trace exporter to their existing spanProcessors array as explained in the client/server example files.
+
+- If existing otel instrumentation already has a metric reader, add the appropriate metric reader to their existing
+  metricReaders array. If they use the deprecated metricReader field instead of metricReaders, replace it with the
+  metricReaders field and add both readers to the array as explained in the client/server example files.
+
 ## 🔧 Configuration Overview
 
 The example utilizes the OTLP HTTP exporter by default, with the endpoint configurable via the `OTEL_EXPORTER_OTLP_ENDPOINT` environment variable. If not set, it defaults to `http://localhost:4318`.

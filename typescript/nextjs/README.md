@@ -18,13 +18,22 @@ Install the additional packages `import-in-the-middle` and `require-in-the-middl
 {preferred package manager} install import-in-the-middle require-in-the-middle
 ```
 
+- If the project is already instrumented on the server side i.e the `instrumentation.ts` file already exists, already
+  has a `register` function, and is already instrumented with opentelemetry via the NodeSDK, you SHOULD NOT create
+  a new `instrumentation.ts` file or a new `otel-server.ts` file. Simply add additional processors, span processors, and
+  readers to the existing ones as detailed in the server example file.
+
+- If the project is already instrumented on the client side with opentelemetry via a WebTracerProvider, LoggerProvider, and
+  MeterProvider, you SHOULD NOT create a new `otel-client.ts` file. Simply add additional processors, span processors,
+  and readers to the existing ones as detailed in the client example file.
+
 ### Create OpenTelemetry Configuration Files
 
-Copy the `otel-server.ts` and `otel-client.ts` example files to the root of your Next.js project.
+Copy the `otel-server.ts` and `otel-client.ts` example files to the root of your Next.js project. (Unless already instrumented as described above)
 
 ### Create instrumentation.ts
 
-Create `instrumentation.ts` in your project root with the following content:
+Create `instrumentation.ts` in your project root with the following content (unless already instrumented as described above):
 
 ```typescript
 export async function register() {
@@ -56,6 +65,18 @@ module.exports = nextConfig;
 
 Set up browser instrumentation for client-side telemetry in Next.js.
 
+### Update otel-client.ts
+
+Update your `otel-client.ts` to use Next.js environment variables:
+
+```typescript
+const otlpEndpoint =
+  process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT ??
+  "http://localhost:4318";
+const otlpEndpointBearerToken =
+  process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_BEARER_TOKEN;
+```
+
 ### Initialize Client-Side OpenTelemetry
 
 Create a `otel-client-init.ts` file and pick a reasonable location for it in your Next.js project. It is recommended to
@@ -83,3 +104,6 @@ export function OtelClientInit() {
 
 Make sure to include this OtelClientInit component in the root layout file. This is the `app/layout.tsx` file if you are
 using App Router or the `pages/_app.tsx` file if you are using Pages Router.
+
+If the project was previously instrumented with opentelemetry and the opentelemetry instrumentation is already
+initialized you do not need create the `otel-client-init.ts` file.

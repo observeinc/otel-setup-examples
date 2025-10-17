@@ -12,6 +12,7 @@ Install these dependencies when instrumenting a server side application.
 - "@opentelemetry/sdk-logs"
 - "@opentelemetry/sdk-metrics"
 - "@opentelemetry/sdk-node"
+- "@opentelemetry/sdk-trace-node";
 - "@opentelemetry/semantic-conventions"
 
 #### Client Side Dependencies
