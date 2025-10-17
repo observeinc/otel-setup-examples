@@ -65,6 +65,18 @@ module.exports = nextConfig;
 
 Set up browser instrumentation for client-side telemetry in Next.js.
 
+### Update otel-client.ts
+
+Update your `otel-client.ts` to use Next.js environment variables:
+
+```typescript
+const otlpEndpoint =
+  process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT ??
+  "http://localhost:4318";
+const otlpEndpointBearerToken =
+  process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_BEARER_TOKEN;
+```
+
 ### Initialize Client-Side OpenTelemetry
 
 Create a `otel-client-init.ts` file and pick a reasonable location for it in your Next.js project. It is recommended to

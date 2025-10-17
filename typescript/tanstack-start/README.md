@@ -11,7 +11,14 @@ Create these files if they do not exist. Using the documentation link above to f
 
 Add `server-otel.ts` and `client-otel.ts` files to a `util` of `lib` folder. If neither exist, create a `util` folder in the `src` or `app` directory.
 
-In `client-otel.ts` use `import.meta.env.VITE_OTEL_EXPORTER_OTLP_ENDPOINT` and `import.meta.env.VITE_OTEL_EXPORTER_OTLP_BEARER_TOKEN` to access the environment variables.
+Update your `otel-client.ts` to use Vite environment variables:
+
+```typescript
+const otlpEndpoint =
+  process.env.VITE_OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
+const otlpEndpointBearerToken =
+  process.env.VITE_OTEL_EXPORTER_OTLP_BEARER_TOKEN;
+```
 
 Once added, it is possible to use the otel configuration from the original `README.md` file.
 
