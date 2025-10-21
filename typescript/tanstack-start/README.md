@@ -51,9 +51,10 @@ const otlpEndpointBearerToken =
 
 The client entry point for Tanstack Start applications is `client.ts`. This file lives in the top level `src` or `app` directory.
 
-- If the `client.ts` file doesn't exist, create it.
-- Add the following snippet to the `client.ts` file. DO NOT remove any existing content or break existing functionality.
-- **IMPORTANT**: `initOtel()` can go after static module imports, but must always be called before any application execution.
+- If the `client.ts` file already exists add only the `initOtel()` call with its surrounding browser check and corresponding import from the following snippet.
+  - DO NOT remove any existing content or break existing functionality.
+  - **IMPORTANT**: `initOtel()` can go after static module imports, but must always be called before any application execution.
+- If the `client.ts` does not exist already, create it and copy the content exactly from the following snippet into the file.
 - Note how we are importing the `initOtel` function from the `otel-client.ts` file we created earlier make sure to update
   the path if you placed the `otel-client.ts` file in a different location.
 
