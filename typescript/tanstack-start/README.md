@@ -1,15 +1,44 @@
 # Tanstack Start Application Example
 
-All Tackstack Start applications have server and client entry points in `server.ts` and `client.ts`. These files live in the `src` or `app` directory.
-These files are optional, but if you want to use OpenTelemetry, you should add them.
+## Server-Side Instrumentation
 
-Documentation regarding the entry points can be found [on the tanstack start documentation](https://tanstack.com/start/latest/docs/framework/react/learn-the-basics)
-If the `server.ts` or `client.ts` files does do not exist, add them based on the documentation linked.
+Create an `instrumentation.ts` (or `.js` if the project is not using typescript) file inside of the your Tanstack Start project. Place this file:
 
-The `server.ts` and `client.tsx` files are the entry points for the server and client side of the application. THEY MUST EXIST.
-Create these files if they do not exist. Using the documentation link above to find the correct default for those files.
+- In the root of your project (same level as `vite.config.js`)
+- **NOT** inside the `src` or `app` directory
 
-Add `server-otel.ts` and `client-otel.ts` files to a `util` of `lib` folder. If neither exist, create a `util` folder in the `src` or `app` directory.
+- If the project is already instrumented on the server side i.e the `instrumentation.ts` file already exists, already
+  has a `register` function, and is already instrumented with opentelemetry via the NodeSDK, you SHOULD NOT create
+  a new `instrumentation.ts` file or a new `otel-server.ts` file. Simply add additional processors, span processors, and
+  readers to the existing ones as detailed in the server example file.
+
+- If the project is already instrumented on the client side with opentelemetry via a WebTracerProvider, LoggerProvider, and
+  MeterProvider, you SHOULD NOT create a new `otel-client.ts` file. Simply add additional processors, span processors,
+  and readers to the existing ones as detailed in the client example file.
+
+### Create OpenTelemetry Configuration Files
+
+Copy the `otel-server.ts` and `otel-client.ts` example files and place these inside of the `src/lib/` or `app/lib/`
+folder (create `lib/` if it doesn't exist already) in your Tanstack Start project. (Unless already instrumented as described above)
+
+### Create instrumentation.ts
+
+Populate the `instrumentation.ts` you created in your project root with the following content (unless already instrumented as described above):
+
+```typescript
+export async function register() {
+  const { initOtel } = await import("./otel-server");
+  initOtel();
+}
+```
+
+**CRITICAL**: The instrumentation file must import your OpenTelemetry server configuration. Import the `otel-server` file you copied, make sure to not confuse it with anything similar.
+
+## Client-Side Instrumentation
+
+This section details how to set up browser instrumentation for client-side telemetry for a Tanstack Start applications.
+
+### Update otel-client.ts
 
 Update your `otel-client.ts` to use Vite environment variables:
 
@@ -20,31 +49,33 @@ const otlpEndpointBearerToken =
   process.env.VITE_OTEL_EXPORTER_OTLP_BEARER_TOKEN;
 ```
 
-Once added, it is possible to use the otel configuration from the original `README.md` file.
+The client entry point for Tanstack Start applications is `client.ts`. This file lives in the top level `src` or `app` directory.
 
-To the `server.ts` file, add the following as the first lines in the file:
-The eslint-disable-next-line is necessary incase there is a lint rule that informs import order.
-
-```ts
-// eslint-disable-next-line
-import { initOtel } from "../otel-server";
-initOtel();
-
-// ... other imports
-```
-
-To the `client.ts` file, add the following as the first lines in the file:
+- If the `client.ts` file already exists add only the `initOtel()` call with its surrounding browser check and corresponding import from the following snippet.
+  - DO NOT remove any existing content or break existing functionality.
+  - **IMPORTANT**: `initOtel()` can go after static module imports, but must always be called before any application execution.
+- If the `client.ts` does not exist already, create it and copy the content exactly from the following snippet into the file.
+- Note how we are importing the `initOtel` function from the `otel-client.ts` file we created earlier make sure to update
+  the path if you placed the `otel-client.ts` file in a different location.
 
 ```ts
-// eslint-disable-next-line
-import { initOtel } from "../otel-client";
-initOtel();
+import { StartClient } from "@tanstack/react-start/client";
+import React, { StrictMode } from "react";
+import { hydrateRoot } from "react-dom/client";
+import { initOtel } from "./lib/otel-client";
 
-// ... other imports
+// Only run in browser environment
+if (typeof window !== "undefined") {
+  initOtel();
+}
+
+hydrateRoot(
+  document,
+  <StrictMode>
+    <StartClient />
+  </StrictMode>
+);
 ```
 
-The `initOtel` function should only be called once per application. Never call it again in another other files.
-
-Install [otel logging middleware](./otelLoggingMiddleware.tsx) into the project in a `util` or `lib` folder. Ideally next to other middleware files.
-If there is a call to `registerGlobalMiddleware` somewhere in the app, go ahead and add the newly added `otelLoggingFunctionMiddleware` to the array.
-The `otelLoggingRequestMiddleware` can be added the middleware array for any `createServerFileRoute` calls in the app. It does not work with the global middleware setup.
+The `initOtel` functions should only each be called once per application. Never call either again other than once in
+`client.ts` and once in `instrumentation.ts` for instrumentation initialization on the client & server side respectively.
