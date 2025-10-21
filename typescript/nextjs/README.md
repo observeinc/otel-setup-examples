@@ -2,7 +2,7 @@
 
 Set up OpenTelemetry in Next.js applications using manual configuration. This guide covers both App Router and Pages Router configurations with complete control over your telemetry setup.
 
-## 📋 Prerequisites
+## Server-Side Instrumentation
 
 Create an `instrumentation.ts` (or `.js`) file in the root directory of your Next.js project. Place this file:
 
@@ -63,7 +63,7 @@ module.exports = nextConfig;
 
 ## Client-Side Instrumentation
 
-Set up browser instrumentation for client-side telemetry in Next.js.
+This section details how to set up browser instrumentation for client-side telemetry in Next.js.
 
 ### Update otel-client.ts
 
