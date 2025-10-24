@@ -1,26 +1,6 @@
 # General OpenTelemetry Instrumentation Instructions
 
-### Tracing Implementation
-
-- **Use auto-instrumentation libraries first**: Prefer framework-specific middleware and wrappers over manual span creation
-- Create spans for all service boundaries: HTTP handlers, gRPC methods, database operations, external API calls
-- Use built-in instrumentation (e.g., HTTP middleware, database drivers) when available
-- Only create manual spans when auto-instrumentation isn't available
-- Apply OpenTelemetry semantic conventions for span attributes
-- Record key attributes: request parameters, user IDs, error messages, response codes
-
-### Logging Integration
-
-- Do not replace/reset the root logger. Python: avoid logging.basicConfig(); attach handlers to your app logger and keep propagate=True.
-- Ensure logs flow through the OpenTelemetry logging handler/provider configured in the example (do not bypass it).
-- Inject trace_id and span_id into logs for correlation (use the example’s logging instrumentation).
-
-### Metrics Collection
-
-- Implement key application metrics: request latency, throughput, error rates, resource usage
-- Use OpenTelemetry meter provider with Prometheus exporter
-- Apply consistent metric naming and avoid high cardinality labels
-- Monitor critical business operations and system health
+- **Use auto-instrumentation libraries** do not implement additional custom instrumentation when possible.
 
 ## Implementation Guidelines
 

@@ -1,5 +1,7 @@
 # Tanstack Start Application Example
 
+Set up OpenTelemetry in Tanstack Start applications using manual configuration.
+
 ## Server-Side Instrumentation
 
 Create an `instrumentation.ts` (or `.js` if the project is not using typescript) file inside of the your Tanstack Start project. Place this file:
@@ -27,7 +29,7 @@ Populate the `instrumentation.ts` you created in your project root with the foll
 
 ```typescript
 export async function register() {
-  const { initOtel } = await import("./otel-server");
+  const { initOtel } = await import("./src/lib/otel-server");
   initOtel();
 }
 ```
