@@ -26,8 +26,6 @@ import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 const serviceName = "example-client"; // replace with your service name
 
 // Client side environment variables:
-// Next.js use process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT and process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_BEARER_TOKEN
-// Vite use import.meta.env.VITE_OTEL_EXPORTER_OTLP_ENDPOINT and import.meta.env.VITE_OTEL_EXPORTER_OTLP_BEARER_TOKEN
 const otlpEndpoint =
   process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
 const otlpEndpointBearerToken = process.env.OTEL_EXPORTER_OTLP_BEARER_TOKEN;
