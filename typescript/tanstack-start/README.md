@@ -46,9 +46,10 @@ Update your `otel-client.ts` to use Vite environment variables:
 
 ```typescript
 const otlpEndpoint =
-  import.meta.env.VITE_OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
+  import.meta.env.VITE_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT ??
+  "http://localhost:4318";
 const otlpEndpointBearerToken = import.meta.env
-  .VITE_OTEL_EXPORTER_OTLP_BEARER_TOKEN;
+  .VITE_PUBLIC_OTEL_EXPORTER_OTLP_BEARER_TOKEN;
 ```
 
 The client entry point for Tanstack Start applications is `client.ts`. This file lives in the top level `src` or `app` directory.
