@@ -6,8 +6,8 @@ Set up OpenTelemetry in Tanstack Start applications using manual configuration.
 
 Create an `instrumentation.ts` (or `.js` if the project is not using typescript) file inside of the your Tanstack Start project. Place this file:
 
-- In the root of your project (same level as `vite.config.js`)
-- **NOT** inside the `src` or `app` directory
+- Inside the `src` directory next to `client.ts` and `server.ts` if they exist
+- **NOT** in the root of your project i.e do not place it at the same level as `vite.config.js`
 
 - If the project is already instrumented on the server side i.e the `instrumentation.ts` file already exists, already
   has a `register` function, and is already instrumented with opentelemetry via the NodeSDK, you SHOULD NOT create
