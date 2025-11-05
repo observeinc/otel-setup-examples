@@ -18,12 +18,11 @@ Can identify the preferred package manager by looking at the `package.json` file
 
 **Critical Implementation Rules**
 
+- **DO NOT** add additional routes, endpoints, or APIs when instrumenting
 - If existing otel instrumentation already has a logger provider with a log processor, add the appropriate log processor
   to their existing processors array as explained in the client/server example files.
-
 - If existing otel instrumentation already has a span processor, add the appropriate span processor and
   trace exporter to their existing spanProcessors array as explained in the client/server example files.
-
 - If existing otel instrumentation already has a metric reader, add the appropriate metric reader to their existing
   metricReaders array. If they use the deprecated metricReader field instead of metricReaders, replace it with the
   metricReaders field and add both readers to the array as explained in the client/server example files.
