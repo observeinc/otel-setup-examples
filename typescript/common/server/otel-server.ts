@@ -32,8 +32,12 @@ const resource = resourceFromAttributes({
 // Initialize OpenTelemetry SDK
 export const sdk = new NodeSDK({
   resource,
-  // If existing otel instrumentation already has a span processor, add the following span processor and
-  // trace exporter to their existing spanProcessors array.
+  /* DO NOT include this comment block when copying the code in this file, just take into account the instructions
+    <INSTRUCTION>
+      If existing otel instrumentation already has a span processor, add the following span processor and
+      trace exporter to their existing spanProcessors array.
+    </INSTRUCTION>
+  */
   spanProcessors: [
     new BatchSpanProcessor(
       new OTLPTraceExporter({
@@ -45,9 +49,13 @@ export const sdk = new NodeSDK({
       })
     ),
   ],
-  // If existing otel instrumentation already has a metric reader, add the following metric reader to their existing
-  // metricReaders array. If they use the deprecated metricReader field instead of metricReaders, replace it with the
-  // metricReaders field and add both readers to the array.
+  /* DO NOT include this comment block when copying the code in this file, just take into account the instructions
+    <INSTRUCTION>
+      If existing otel instrumentation already has a metric reader, add the following metric reader to their existing
+      metricReaders array. If they use the deprecated metricReader field instead of metricReaders, replace it with the
+      metricReaders field and add both readers to the array.
+    </INSTRUCTION>
+  */
   metricReaders: [
     new PeriodicExportingMetricReader({
       exporter: new OTLPMetricExporter({
@@ -66,8 +74,12 @@ export const sdk = new NodeSDK({
 // Initialize Logger Provider
 const loggerProvider = new LoggerProvider({
   resource,
-  // If existing otel instrumentation already has a logger provider with a log processor, add the following log
-  // processor to their existing processors array.
+  /* DO NOT include this comment block when copying the code in this file, just take into account the instructions
+    <INSTRUCTION>
+      If existing otel instrumentation already has a logger provider with a log processor, add the following log
+      processor to their existing processors array.
+    </INSTRUCTION>
+  */
   processors: [
     new BatchLogRecordProcessor(
       new OTLPLogExporter({
