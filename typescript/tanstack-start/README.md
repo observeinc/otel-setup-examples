@@ -6,7 +6,7 @@ Set up OpenTelemetry in Tanstack Start applications using manual configuration.
 
 Create an `instrumentation.ts` (or `.js` if the project is not using typescript) file inside of the your Tanstack Start project. Place this file:
 
-- Inside the `src` directory next to `client.ts` and `server.ts` if they exist
+- Inside the `src` directory next to `client.tsx` and `server.ts` if they exist
 - **NOT** in the root of your project i.e do not place it at the same level as `vite.config.js`
 
 - If the project is already instrumented on the server side i.e the `instrumentation.ts` file already exists, already
@@ -28,13 +28,36 @@ folder (create `lib/` if it doesn't exist already) in your Tanstack Start projec
 Populate the `instrumentation.ts` you created in your project root with the following content (unless already instrumented as described above):
 
 ```typescript
-export async function register() {
-  const { initOtel } = await import("./src/lib/otel-server");
-  initOtel();
-}
+import { initOtel } from "~/lib/otel-server";
+
+initOtel();
 ```
 
 **CRITICAL**: The instrumentation file must import your OpenTelemetry server configuration. Import the `otel-server` file you copied, make sure to not confuse it with anything similar.
+
+Once the `instrumentation.ts` file is created and properly imports the `otel-server.ts` file:
+
+### Import instrumentation.ts
+
+- Look for the server entry point file. This file is usually named `server.ts` and lives in the top level `src` or `app` directory.
+- Check the vite.config.ts file to confirm that no custom server entry point file is specified.
+  - If no custom server entry point file is specified, then assume `server.ts` is the entry point.
+  - If a custom server entry point file is specified, use that file instead of `server.ts`.
+- If there is no existing server entry point file, create one and name it `server.ts`. Populate the file with the following content:
+
+```typescript
+import "./instrumentation";
+
+import handler from "@tanstack/react-start/server-entry";
+
+export default {
+  fetch(request: Request) {
+    return handler.fetch(request);
+  },
+};
+```
+
+- If a server entry point already exists, just add the `import "./instrumentation";` line as the first line of that file.
 
 ## Client-Side Instrumentation
 
@@ -52,16 +75,16 @@ const otlpEndpointBearerToken = import.meta.env
   .VITE_PUBLIC_OTEL_EXPORTER_OTLP_BEARER_TOKEN;
 ```
 
-The client entry point for Tanstack Start applications is `client.ts`. This file lives in the top level `src` or `app` directory.
+The client entry point for Tanstack Start applications is `client.tsx`. This file lives in the top level `src` or `app` directory.
 
-- If the `client.ts` file already exists add only the `initOtel()` call with its surrounding browser check and corresponding import from the following snippet.
+- If the `client.tsx` file already exists add only the `initOtel()` call with its surrounding browser check and corresponding import from the following snippet.
   - DO NOT remove any existing content or break existing functionality.
   - **IMPORTANT**: `initOtel()` can go after static module imports, but must always be called before any application execution.
-- If the `client.ts` does not exist already, create it and copy the content exactly from the following snippet into the file.
+- If the `client.tsx` file does not exist already, create `client.tsx` and copy the content exactly from the following snippet into the file.
 - Note how we are importing the `initOtel` function from the `otel-client.ts` file we created earlier make sure to update
   the path if you placed the `otel-client.ts` file in a different location.
 
-```ts
+```typescript
 import { StartClient } from "@tanstack/react-start/client";
 import React, { StrictMode } from "react";
 import { hydrateRoot } from "react-dom/client";
@@ -81,4 +104,4 @@ hydrateRoot(
 ```
 
 The `initOtel` functions should only each be called once per application. Never call either again other than once in
-`client.ts` and once in `instrumentation.ts` for instrumentation initialization on the client & server side respectively.
+`client.tsx` and once in `instrumentation.ts` for instrumentation initialization on the client & server side respectively.
