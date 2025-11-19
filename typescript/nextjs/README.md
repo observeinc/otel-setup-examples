@@ -70,9 +70,12 @@ This section details how to set up browser instrumentation for client-side telem
 Update your `otel-client.ts` to use Next.js environment variables:
 
 ```typescript
-const otlpEndpoint =
-  process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT ??
-  "http://localhost:4318";
+const otlpEndpoint = process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT;
+```
+
+and
+
+```typescript
 const otlpEndpointBearerToken =
   process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_BEARER_TOKEN;
 ```

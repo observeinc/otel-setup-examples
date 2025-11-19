@@ -16,8 +16,15 @@ import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 // Configuration
 const serviceName = "example-service"; // replace with your service name
 
-const otlpEndpoint =
-  process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
+const otlpEndpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
+
+if (!otlpEndpoint) {
+  throw new Error(
+    "OTEL_EXPORTER_OTLP_ENDPOINT environment variable is required but not set. " +
+      "Please set it to your OpenTelemetry collector endpoint."
+  );
+}
+
 const otlpEndpointBearerToken = process.env.OTEL_EXPORTER_OTLP_BEARER_TOKEN;
 
 const authHeader = otlpEndpointBearerToken

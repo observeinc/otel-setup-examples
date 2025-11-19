@@ -45,9 +45,12 @@ This section details how to set up browser instrumentation for client-side telem
 Update your `otel-client.ts` to use Vite environment variables:
 
 ```typescript
-const otlpEndpoint =
-  import.meta.env.VITE_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT ??
-  "http://localhost:4318";
+const otlpEndpoint = import.meta.env.VITE_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT;
+```
+
+and
+
+```typescript
 const otlpEndpointBearerToken = import.meta.env
   .VITE_PUBLIC_OTEL_EXPORTER_OTLP_BEARER_TOKEN;
 ```
