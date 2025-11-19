@@ -46,11 +46,6 @@ Update your `otel-client.ts` to use Vite environment variables:
 
 ```typescript
 const otlpEndpoint = import.meta.env.VITE_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT;
-```
-
-and
-
-```typescript
 const otlpEndpointBearerToken = import.meta.env
   .VITE_PUBLIC_OTEL_EXPORTER_OTLP_BEARER_TOKEN;
 ```

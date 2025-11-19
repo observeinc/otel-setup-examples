@@ -71,11 +71,6 @@ Update your `otel-client.ts` to use Next.js environment variables:
 
 ```typescript
 const otlpEndpoint = process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_ENDPOINT;
-```
-
-and
-
-```typescript
 const otlpEndpointBearerToken =
   process.env.NEXT_PUBLIC_OTEL_EXPORTER_OTLP_BEARER_TOKEN;
 ```
