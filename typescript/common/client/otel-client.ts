@@ -26,8 +26,7 @@ import { ATTR_SERVICE_NAME } from "@opentelemetry/semantic-conventions";
 const serviceName = "example-client"; // replace with your service name
 
 // Client side environment variables:
-const otlpEndpoint =
-  process.env.OTEL_EXPORTER_OTLP_ENDPOINT ?? "http://localhost:4318";
+const otlpEndpoint = process.env.OTEL_EXPORTER_OTLP_ENDPOINT;
 const otlpEndpointBearerToken = process.env.OTEL_EXPORTER_OTLP_BEARER_TOKEN;
 
 const authHeader = otlpEndpointBearerToken
@@ -39,75 +38,92 @@ const resource = resourceFromAttributes({
   [ATTR_SERVICE_NAME]: serviceName,
 });
 
-const provider = new WebTracerProvider({
-  resource,
-  spanProcessors: [
-    /* DO NOT include this comment block when copying the code in this file, just take into account the instructions
-    <INSTRUCTION>
-      If existing otel instrumentation already has a span processor, add the following span processor and trace exporter
-      to their existing spanProcessors array.
-    </INSTRUCTION>
-    */
-    new SimpleSpanProcessor(
-      new OTLPTraceExporter({
-        url: `${otlpEndpoint}/v1/traces`,
-        headers: {
-          ...authHeader,
-          "x-observe-target-package": "Tracing",
-        },
-      })
-    ),
-  ],
-});
+// Only initialize providers if endpoint is configured
+let provider: WebTracerProvider | undefined;
+let meterProvider: MeterProvider | undefined;
+let loggerProvider: LoggerProvider | undefined;
 
-// Initialize Meter Provider
-const meterProvider = new MeterProvider({
-  resource,
-  readers: [
-    /* DO NOT include this comment block when copying the code in this file, just take into account the instructions
-    <INSTRUCTION>
-      If existing otel instrumentation already has a metric reader, add the following metric reader to their existing
-      metricReaders array. If they use the deprecated metricReader field instead of metricReaders, replace it with the
-      metricReaders field and add both readers to the array.
-    </INSTRUCTION>
-    */
-    new PeriodicExportingMetricReader({
-      exporter: new OTLPMetricExporter({
-        url: `${otlpEndpoint}/v1/metrics`,
-        headers: {
-          ...authHeader,
-          "x-observe-target-package": "Metrics",
-          "Content-Type": "application/x-protobuf",
-        },
+if (otlpEndpoint) {
+  provider = new WebTracerProvider({
+    resource,
+    spanProcessors: [
+      /* DO NOT include this comment block when copying the code in this file, just take into account the instructions
+      <INSTRUCTION>
+        If existing otel instrumentation already has a span processor, add the following span processor and trace exporter
+        to their existing spanProcessors array.
+      </INSTRUCTION>
+      */
+      new SimpleSpanProcessor(
+        new OTLPTraceExporter({
+          url: `${otlpEndpoint}/v1/traces`,
+          headers: {
+            ...authHeader,
+            "x-observe-target-package": "Tracing",
+          },
+        })
+      ),
+    ],
+  });
+
+  // Initialize Meter Provider
+  meterProvider = new MeterProvider({
+    resource,
+    readers: [
+      /* DO NOT include this comment block when copying the code in this file, just take into account the instructions
+      <INSTRUCTION>
+        If existing otel instrumentation already has a metric reader, add the following metric reader to their existing
+        metricReaders array. If they use the deprecated metricReader field instead of metricReaders, replace it with the
+        metricReaders field and add both readers to the array.
+      </INSTRUCTION>
+      */
+      new PeriodicExportingMetricReader({
+        exporter: new OTLPMetricExporter({
+          url: `${otlpEndpoint}/v1/metrics`,
+          headers: {
+            ...authHeader,
+            "x-observe-target-package": "Metrics",
+            "Content-Type": "application/x-protobuf",
+          },
+        }),
       }),
-    }),
-  ],
-});
+    ],
+  });
 
-// Initialize Logger Provider
-const loggerProvider = new LoggerProvider({
-  resource,
-  processors: [
-    /* DO NOT include this comment block when copying the code in this file, just take into account the instructions
-    <INSTRUCTION>
-      If existing otel instrumentation already has a logger provider with a log processor, add the following log
-      processor to their existing processors array.
-    </INSTRUCTION>
-    */
-    new BatchLogRecordProcessor(
-      new OTLPLogExporter({
-        url: `${otlpEndpoint}/v1/logs`,
-        headers: {
-          ...authHeader,
-          "x-observe-target-package": "Logs",
-        },
-      })
-    ),
-  ],
-});
+  // Initialize Logger Provider
+  loggerProvider = new LoggerProvider({
+    resource,
+    processors: [
+      /* DO NOT include this comment block when copying the code in this file, just take into account the instructions
+      <INSTRUCTION>
+        If existing otel instrumentation already has a logger provider with a log processor, add the following log
+        processor to their existing processors array.
+      </INSTRUCTION>
+      */
+      new BatchLogRecordProcessor(
+        new OTLPLogExporter({
+          url: `${otlpEndpoint}/v1/logs`,
+          headers: {
+            ...authHeader,
+            "x-observe-target-package": "Logs",
+          },
+        })
+      ),
+    ],
+  });
+}
 
 // Initialize OpenTelemetry and return initialized components
 export function initOtel() {
+  if (!otlpEndpoint) {
+    console.warn("OpenTelemetry disabled: OTEL_EXPORTER_OTLP_ENDPOINT not set");
+    return;
+  }
+
+  if (!provider || !meterProvider || !loggerProvider) {
+    console.warn("OpenTelemetry providers not initialized");
+    return;
+  }
+
   try {
     // Registering instrumentations / plugins
     registerInstrumentations({
@@ -133,13 +149,10 @@ export function initOtel() {
       body: "OpenTelemetry Web SDK started",
     });
   } catch (error) {
-    const logger = logs.getLogger(serviceName);
-    logger.emit({
-      severityNumber: SeverityNumber.ERROR,
-      severityText: "ERROR",
-      body: "Error starting OpenTelemetry SDK",
-      attributes: { error: (error as Error).message },
-    });
-    throw error;
+    console.error(
+      "Error starting OpenTelemetry SDK:",
+      (error as Error).message
+    );
+    // Don't throw the error - allow the app to continue without telemetry
   }
 }
